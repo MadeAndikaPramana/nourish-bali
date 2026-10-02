@@ -12,20 +12,20 @@ Files live in `src/assets/photos/` and are registered in `src/lib/photos.ts`.
 | File | Used for | Photographer | Source |
 |---|---|---|---|
 | `bowl-hero.jpg` | Home hero | Abdelrahman Sarayreh (@sarayra) | https://unsplash.com/photos/AqlcqCzF3aQ |
-| `acai-bowl.jpg` | Signature dishes: açaí bowls | Eiliv Aceron (@shootdelicious) | https://unsplash.com/photos/NI8MeJiAN3I |
+| `acai-bowl.jpg` | Signature dishes: açaí bowls; Uluwatu page tile | Eiliv Aceron (@shootdelicious) | https://unsplash.com/photos/NI8MeJiAN3I |
 | `poke-bowl.jpg` | Signature dishes: poke bowl | Miu Sua (@phanhfank) | https://unsplash.com/photos/pO9851jklaE |
 | `shakshuka.jpg` | Signature dishes: shakshuka | Toa Heftiba (@heftiba) | https://unsplash.com/photos/gWkvURhoMlA |
 | `avo-toast.jpg` | Signature dishes: smashed avo | Fernanda Martinez (@fermtz05) | https://unsplash.com/photos/ZSAE2DubK94 |
 | `wrap.jpg` | Signature dishes: falafel wrap | Farhad Ibrahimzade (@ferhadd) | https://unsplash.com/photos/riLJ2t6VEmE |
 | `french-toast.jpg` | Signature dishes: French toast | amirali mirhashemian (@amir_v_ali) | https://unsplash.com/photos/SDMmCp4on3k |
 | `latte.jpg` | Signature dishes: coffee | Phil Desforges (@storybyphil) | https://unsplash.com/photos/Nw8wbiDE3gU |
-| `croissants.jpg` | Ungasan bakery panel | Conor Brown (@commonboxturtle) | https://unsplash.com/photos/sqkXyyj4WdE |
-| `smoothie.jpg` | Signature dishes: smoothies | Bakd&Raw by Karolin Baitinger (@bakdandraw) | https://unsplash.com/photos/G-qUSofkSr4 |
+| `croissants.jpg` | Ungasan page: bakery tile | Conor Brown (@commonboxturtle) | https://unsplash.com/photos/sqkXyyj4WdE |
+| `smoothie.jpg` | Signature dishes: smoothies; Berawa page tile | Bakd&Raw by Karolin Baitinger (@bakdandraw) | https://unsplash.com/photos/G-qUSofkSr4 |
 | `carrot-cake.jpg` | Signature dishes: carrot cake | Orkun Orcan (@orkunorcan) | https://unsplash.com/photos/EvfXG4aK9d8 |
-| `pizza.jpg` | Ungasan branch, signature dishes: pizza | Joanie Simon (@joaniesimon) | https://unsplash.com/photos/T0q4_yyQ4Hg |
-| `uluwatu-cliffs.jpg` | Uluwatu branch | Alexandra Smielova (@sashasmelova) | https://unsplash.com/photos/4euu6M6opno |
+| `pizza.jpg` | Ungasan branch card and hero, signature dishes: pizza | Joanie Simon (@joaniesimon) | https://unsplash.com/photos/T0q4_yyQ4Hg |
+| `uluwatu-cliffs.jpg` | Uluwatu branch card and hero | Alexandra Smielova (@sashasmelova) | https://unsplash.com/photos/4euu6M6opno |
 | `bukit-coast.jpg` | About section | Jared Schwitzke (@jaredschwitzke) | https://unsplash.com/photos/aVvckzTWWCc |
-| `canggu-ricefield.jpg` | Berawa branch | Timur Kozmenko (@timrael) | https://unsplash.com/photos/yJw24vLHCuo |
+| `canggu-ricefield.jpg` | Berawa branch card and hero | Timur Kozmenko (@timrael) | https://unsplash.com/photos/yJw24vLHCuo |
 
 Notes:
 - `wrap.jpg` is a generic wrap, not a falafel wrap. `pizza.jpg` is a generic margherita-style pizza.
@@ -46,3 +46,6 @@ Self-hosted via Fontsource, all under the SIL Open Font License 1.1:
 - Motion: [Motion](https://motion.dev) (MIT), smooth scroll: [Lenis](https://github.com/darkroomengineering/lenis) (MIT).
 - Some interaction patterns are adapted from free [Skiper UI](https://skiper-ui.com) components (scroll-drawn SVG path,
   text roll navigation, progressive blur) and rewritten for this site.
+
+Link-preview images in `public/og/` are screenshots of this site's own pages (`npm run og`), so they contain the same
+placeholder photos.

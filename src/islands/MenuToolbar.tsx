@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { LayoutGroup, motion } from 'motion/react';
-import { SECTION_LABELS, TAG_LABELS, TAGS, type Section, type Tag } from '@/lib/schema';
+import { SECTION_LABELS, TAG_LABELS, TAGS } from '@/lib/constants';
+import type { Section, Tag } from '@/lib/schema';
 import { servingState } from '@/lib/hours';
 
 interface CategoryInfo {
@@ -114,7 +115,18 @@ export default function MenuToolbar({ rootId, categories, syncUrl = true }: Prop
       { rootMargin: '-30% 0px -60% 0px' },
     );
     el.querySelectorAll('[data-category]').forEach((s) => io.observe(s));
-    return () => io.disconnect();
+    // Jumping back to the top skips the sections, so no observer fires: reset from a cheap scroll check.
+    let frame = 0;
+    const onScroll = () =>
+      (frame ||= requestAnimationFrame(() => {
+        frame = 0;
+        if (el.getBoundingClientRect().top > window.innerHeight * 0.3) setActive(categories[0]?.id);
+      }));
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      io.disconnect();
+      window.removeEventListener('scroll', onScroll);
+    };
   }, [categories]);
 
   // Keep the active chip in view.

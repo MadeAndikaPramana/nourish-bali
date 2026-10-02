@@ -1,4 +1,5 @@
-import { WEEKDAYS, type Branch, type Category, type TimeRange, type Weekday } from './schema';
+import { WEEKDAYS } from './constants';
+import type { Branch, Category, TimeRange, Weekday } from './schema';
 
 /**
  * Opening-hours logic in Bali time (WITA, UTC+8). Bali has no daylight saving,

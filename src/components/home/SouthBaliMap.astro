@@ -31,14 +31,15 @@ const coast: Pt[] = [
 ];
 const land = smooth(coast) + ' L 1010 -20 L 200 -20 Z';
 
-const route: Pt[] = [[378, 128], [438, 245], [476, 352], [468, 448], [432, 520], [382, 574], [332, 606], [292, 628], [266, 642]];
+// Pins from the Google listings' coordinates (Berawa -8.6675,115.1473 · Uluwatu -8.8146,115.1123 · Ungasan -8.8251,115.1413).
+const route: Pt[] = [[389, 158], [440, 250], [476, 352], [466, 448], [436, 525], [402, 610], [365, 684], [305, 676], [249, 649]];
 const routeD = smooth(route);
 
 const branches = getBranches();
 const pins: Record<string, { x: number; y: number; dx: number; dy: number; anchor: 'start' | 'end' }> = {
-  berawa: { x: 378, y: 128, dx: 18, dy: -14, anchor: 'start' },
-  ungasan: { x: 332, y: 606, dx: 18, dy: -16, anchor: 'start' },
-  uluwatu: { x: 266, y: 642, dx: -6, dy: 46, anchor: 'start' },
+  berawa: { x: 389, y: 158, dx: 18, dy: -14, anchor: 'start' },
+  ungasan: { x: 365, y: 684, dx: 20, dy: -18, anchor: 'start' },
+  uluwatu: { x: 249, y: 649, dx: -100, dy: 48, anchor: 'start' },
 };
 ---
 
@@ -84,11 +85,11 @@ const pins: Record<string, { x: number; y: number; dx: number; dy: number; ancho
         <path d={land} class="fill-[#f3ead9] stroke-[#c9b896]" stroke-width="2.5" stroke-linejoin="round"></path>
         <!-- rice terraces hint near Berawa -->
         <g class="text-[#46701b]" opacity=".5">
-          {[0, 1, 2, 3].map((i) => <path d={`M ${330 + i * 14} ${60 + i * 10} q 40 -18 80 0`} fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />)}
+          {[0, 1, 2, 3].map((i) => <path d={`M ${345 + i * 14} ${88 + i * 10} q 40 -18 80 0`} fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />)}
         </g>
         <text x="560" y="250" class="serif-accent fill-ink/45" font-size="28">Kuta</text>
         <text x="300" y="40" class="serif-accent fill-ink/45" font-size="28">Canggu</text>
-        <text x="560" y="712" class="serif-accent fill-ink/45" font-size="30">Bukit</text>
+        <text x="540" y="742" class="serif-accent fill-ink/45" font-size="30">Bukit</text>
         <text x="170" y="420" class="serif-accent fill-[#0e6872]/60" font-size="30">Indian Ocean</text>
 
         <path d={routeD} fill="none" stroke="#141311" stroke-width="3.5" stroke-dasharray="2 10" stroke-linecap="round" mask="url(#route-mask)"></path>

@@ -74,8 +74,8 @@ const priceTitle = menu.samplePrices ? 'Sample price, not the café’s real pri
         </header>
 
         {groups(c.items).map((g) => (
-          <div class="menu-group" data-group>
-            {g.group && <h4 class="eyebrow mb-3 mt-6 text-muted first:mt-0">{g.group}</h4>}
+          <div class="menu-group not-first:mt-8" data-group>
+            {g.group && <h4 class="eyebrow mb-2 border-b border-line pb-2 text-muted">{g.group}</h4>}
             <ul class:list={[c.style === 'cards' ? 'grid gap-3 sm:grid-cols-2 xl:grid-cols-3' : 'grid gap-x-10 md:grid-cols-2']}>
               {g.items.map((i) => (
                 <li

@@ -1,28 +1,21 @@
 import { z } from 'zod';
+import { BRANCH_SLUGS, MENU_IDS, SECTIONS, TAGS, WEEKDAYS } from './constants';
+
+export { BRANCH_SLUGS, MENU_IDS, SECTIONS, SECTION_LABELS, TAGS, TAG_LABELS, WEEKDAYS } from './constants';
 
 /**
  * Content schema shared by the site (build time) and /admin (client + API).
  * Content lives as JSON in src/content and is edited through /admin, which commits to GitHub.
  */
 
-export const BRANCH_SLUGS = ['uluwatu', 'ungasan', 'berawa'] as const;
 export const BranchSlug = z.enum(BRANCH_SLUGS);
 export type BranchSlug = z.infer<typeof BranchSlug>;
 
-export const MENU_IDS = ['bukit', 'berawa'] as const;
 export const MenuId = z.enum(MENU_IDS);
 export type MenuId = z.infer<typeof MenuId>;
 
-/** Dietary marks exactly as printed on the café's own menus. */
-export const TAGS = ['V', 'VG', 'GF', 'VO'] as const;
 export const Tag = z.enum(TAGS);
 export type Tag = z.infer<typeof Tag>;
-export const TAG_LABELS: Record<Tag, string> = {
-  V: 'Vegan',
-  VG: 'Vegetarian',
-  GF: 'Gluten free',
-  VO: 'Vegan option',
-};
 
 const Time = z.string().regex(/^([01]\d|2[0-4]):[0-5]\d$/, 'Use 24h time, e.g. 07:00');
 const IsoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Use YYYY-MM-DD');
@@ -32,7 +25,6 @@ export const TimeRange = z
   .refine((r) => r.open !== r.close, 'Open and close cannot be the same time');
 export type TimeRange = z.infer<typeof TimeRange>;
 
-export const WEEKDAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const;
 export type Weekday = (typeof WEEKDAYS)[number];
 
 /** An empty array means closed that day. */
@@ -103,15 +95,8 @@ export const MenuItem = z.object({
 });
 export type MenuItem = z.infer<typeof MenuItem>;
 
-export const SECTIONS = ['food', 'sweets', 'drinks', 'bar'] as const;
 export const Section = z.enum(SECTIONS);
 export type Section = z.infer<typeof Section>;
-export const SECTION_LABELS: Record<Section, string> = {
-  food: 'Food',
-  sweets: 'Sweets',
-  drinks: 'Drinks',
-  bar: 'Bar',
-};
 
 export const Category = z.object({
   id: z.string().regex(/^[a-z0-9-]+$/),

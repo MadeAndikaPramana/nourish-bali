@@ -20,7 +20,7 @@ interface Props {
   noindex?: boolean;
 }
 
-const { title, description, branch, jsonLd = [], ogImage = '/og/home.png', bare = false, noindex = false } = Astro.props;
+const { title, description, branch, jsonLd = [], ogImage = '/og/home.jpg', bare = false, noindex = false } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const fullTitle = title === SITE_NAME ? title : `${title} · ${SITE_NAME}`;
 ---

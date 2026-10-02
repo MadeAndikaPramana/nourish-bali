@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { Drawer } from 'vaul';
 import { baliClock, formatTime, rangesForDate, toMinutes } from '@/lib/hours';
 import { tableMessage, waLink } from '@/lib/links';
-import { WEEKDAYS, type Branch } from '@/lib/schema';
+import { WEEKDAYS } from '@/lib/constants';
+import type { Branch } from '@/lib/schema';
 
 interface Props {
   branch: Pick<Branch, 'name' | 'whatsapp' | 'hours' | 'hoursConfirmed' | 'specialDays' | 'temporarilyClosed'>;

@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Command } from 'cmdk';
 import type { SearchEntry } from '@/pages/search-index.json';
-import { TAG_LABELS, type Tag } from '@/lib/schema';
+import { TAG_LABELS } from '@/lib/constants';
+import type { Tag } from '@/lib/schema';
 
 /**
  * ⌘K / Ctrl+K "Find a dish" across all three cafés.
