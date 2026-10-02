@@ -1,0 +1,50 @@
+---
+import type { Branch } from '@/lib/schema';
+import { directionsUrl, mapEmbedUrl, mapsSearchUrl } from '@/lib/links';
+import Icon from '@/components/Icon.astro';
+
+/** Click-to-load Google Map: no Google requests (or cookies) until the visitor asks for the map. */
+interface Props {
+  branch: Branch;
+}
+const { branch } = Astro.props;
+---
+
+<div class="map-facade relative flex min-h-[22rem] flex-col overflow-hidden rounded-[1.75rem] bg-accent-soft ring-1 ring-line" data-map-facade>
+  <div class="absolute inset-0 opacity-60" aria-hidden="true" style="background-image: radial-gradient(circle at 1px 1px, color-mix(in oklab, var(--accent) 35%, transparent) 1px, transparent 0); background-size: 18px 18px;"></div>
+  <svg class="absolute inset-0 h-full w-full text-accent/25" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <path d="M-20 220 C 80 160, 140 260, 220 190 S 360 120, 430 160" fill="none" stroke="currentColor" stroke-width="18" stroke-linecap="round"></path>
+    <path d="M120 -20 C 150 80, 110 160, 170 320" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round"></path>
+  </svg>
+  <div class="relative m-auto flex flex-col items-center gap-3 p-6 text-center">
+    <span class="grid size-14 place-items-center rounded-full bg-accent text-white shadow-lg shadow-accent/30">
+      <Icon name="pin" size={26} />
+    </span>
+    <p class="max-w-xs text-sm font-semibold">{branch.address}</p>
+    <div class="flex flex-wrap justify-center gap-2">
+      <button type="button" class="btn btn-ink !min-h-10 text-sm" data-load-map data-src={mapEmbedUrl(branch.maps)}>
+        Show Google Map
+      </button>
+      <a href={directionsUrl(branch.maps)} target="_blank" rel="noopener" class="btn btn-accent !min-h-10 text-sm">
+        <Icon name="directions" size={15} /> Directions
+      </a>
+    </div>
+    <a href={mapsSearchUrl(branch.maps)} target="_blank" rel="noopener" class="text-xs text-muted underline underline-offset-4">Open in Google Maps</a>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-load-map]').forEach((btn) =>
+    btn.addEventListener('click', () => {
+      const box = btn.closest<HTMLElement>('[data-map-facade]');
+      if (!box) return;
+      const iframe = document.createElement('iframe');
+      iframe.src = btn.dataset.src!;
+      iframe.title = 'Map';
+      iframe.loading = 'lazy';
+      iframe.referrerPolicy = 'no-referrer-when-downgrade';
+      iframe.className = 'absolute inset-0 h-full w-full border-0';
+      box.replaceChildren(iframe);
+    }),
+  );
+</script>

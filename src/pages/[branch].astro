@@ -1,0 +1,183 @@
+---
+import Base from '@/layouts/Base.astro';
+import Photo from '@/components/Photo.astro';
+import Icon from '@/components/Icon.astro';
+import HoursCard from '@/components/branch/HoursCard.astro';
+import MapFacade from '@/components/branch/MapFacade.astro';
+import MobileDock from '@/components/branch/MobileDock.astro';
+import MenuList from '@/components/menu/MenuList.astro';
+import MenuToolbar from '@/islands/MenuToolbar';
+import LiveStatus from '@/islands/LiveStatus';
+import TableComposer from '@/islands/TableComposer';
+import { getBranch, getBranches, getSite, menuForBranch } from '@/lib/content';
+import { BRANCH_SLUGS, type BranchSlug } from '@/lib/schema';
+import { weeklySummary } from '@/lib/hours';
+import { branchPhoto, type PhotoKey } from '@/lib/photos';
+import { directionsUrl, helloMessage, instagramUrl, waLink } from '@/lib/links';
+import { formatCount } from '@/lib/format';
+import { branchJsonLd } from '@/lib/seo';
+
+export function getStaticPaths() {
+  return BRANCH_SLUGS.map((branch) => ({ params: { branch } }));
+}
+
+const slug = Astro.params.branch as BranchSlug;
+const branch = getBranch(slug);
+const menu = menuForBranch(slug);
+const site = getSite();
+const others = getBranches().filter((b) => b.slug !== slug);
+
+// A second tile per branch that points into its menu.
+const teaser: Record<BranchSlug, { photo: PhotoKey; title: string; text: string; category: string }> = {
+  uluwatu: { photo: 'acaiBowl', title: 'Bowls all day', text: 'Açaí, chia jars and overnight oats, many of them vegan.', category: 'breakfast-bowls' },
+  ungasan: { photo: 'croissants', title: 'From the bakery', text: 'Croissants, cinnamon scrolls and banana bread, plus cakes in the display.', category: 'bakery' },
+  berawa: { photo: 'smoothie', title: 'Smoothies & juice', text: 'Cold-pressed juices and smoothies to go with the ricefield view.', category: 'smoothies' },
+};
+const t = teaser[slug];
+const menuRoot = `menu-${slug}`;
+const toolbarCategories = menu.categories.map((c) => ({
+  id: c.id,
+  name: c.name,
+  section: c.section,
+  servedFrom: c.servedFrom,
+  servedUntil: c.servedUntil,
+}));
+const itemCount = menu.categories.reduce((n, c) => n + c.items.length, 0);
+---
+
+<Base
+  title={`${branch.name}`}
+  description={`NOURISH ${branch.name}: ${branch.tagline} Menu, opening hours, WhatsApp and directions. ${branch.address}.`}
+  branch={slug}
+  jsonLd={[branchJsonLd(branch, Astro.site!)]}
+  ogImage={`/og/${slug}.png`}
+>
+  <!-- Hero -->
+  <section class="relative isolate -mt-[var(--header-h)] min-h-[88svh] overflow-hidden bg-ink text-paper">
+    <Photo
+      photo={branchPhoto[slug]}
+      class="absolute inset-0 -z-10"
+      sizes="100vw"
+      loading="eager"
+      widths={[640, 960, 1280, 1600]}
+      transitionName={`branch-photo-${slug}`}
+      tag={false}
+    />
+    <div class="absolute inset-0 -z-10 bg-gradient-to-t from-ink via-ink/45 to-ink/20" aria-hidden="true"></div>
+    <div class="absolute inset-0 -z-10" style="background: linear-gradient(to top right, color-mix(in oklab, var(--accent) 55%, transparent), transparent 55%)" aria-hidden="true"></div>
+    <span class="placeholder-tag !bottom-auto !left-auto right-4 top-[calc(var(--header-h)+1rem)]">Placeholder photo</span>
+
+    <div class="container-x flex min-h-[88svh] flex-col justify-end pb-10 pt-[calc(var(--header-h)+2rem)] lg:pb-14">
+      <nav aria-label="Breadcrumb" class="eyebrow mb-4 text-paper/70">
+        <a href="/" class="hover:text-paper">Nourish</a> <span aria-hidden="true">/</span> <span>{branch.area}</span>
+      </nav>
+      <h1 class="display text-[clamp(3.2rem,14.6vw,13rem)] leading-[0.82]" style={`view-transition-name: branch-title-${slug}`}>
+        {branch.name}
+      </h1>
+      <p class="serif-accent mt-4 max-w-2xl text-[clamp(1.4rem,4vw,2.2rem)] leading-tight text-paper/90">{branch.tagline}</p>
+
+      <div class="mt-6 flex flex-wrap items-center gap-3">
+        <LiveStatus client:load branch={branch} variant="hero" countdown fallback={weeklySummary(branch.hours)[0].hours} />
+        <a href="#reviews-note" class="inline-flex items-center gap-1.5 rounded-full bg-ink/40 px-3 py-2 text-sm backdrop-blur">
+          <Icon name="star" size={15} class="text-amber-300" /> <strong>{branch.rating.value.toFixed(1)}</strong>
+          <span class="text-paper/70">· {formatCount(branch.rating.count)} Google reviews</span>
+        </a>
+      </div>
+
+      <div class="mt-7 hidden flex-wrap gap-3 lg:flex">
+        <TableComposer client:idle branch={branch} className="btn btn-wa" />
+        <a href={directionsUrl(branch.maps)} target="_blank" rel="noopener" class="btn bg-paper text-ink hover:bg-white">
+          <Icon name="directions" size={16} /> Directions
+        </a>
+        <a href="#menu" class="btn bg-paper/15 text-paper backdrop-blur hover:bg-paper/25">
+          See the menu <Icon name="arrow-right" size={16} />
+        </a>
+      </div>
+      <p class="mt-6 flex items-start gap-2 text-sm text-paper/75"><Icon name="pin" size={16} class="mt-0.5 shrink-0" /> {branch.address}</p>
+    </div>
+  </section>
+
+  {
+    branch.temporarilyClosed.active && (
+      <div class="bg-rose-700 px-4 py-3 text-center text-sm font-semibold text-white">
+        Temporarily closed{branch.temporarilyClosed.message ? `: ${branch.temporarilyClosed.message}` : ''}
+      </div>
+    )
+  }
+
+  <!-- Info -->
+  <section class="container-x grid gap-4 py-12 md:grid-cols-2 lg:grid-cols-[1fr_1.3fr_1fr] lg:py-16" aria-label="Visit">
+    <HoursCard branch={branch} />
+    <MapFacade branch={branch} />
+    <div class="grid gap-4">
+      <div class="flex flex-col gap-4 rounded-[1.75rem] bg-ink p-6 text-paper">
+        <h2 class="eyebrow text-paper/60">Message the café</h2>
+        <p class="display text-2xl">{branch.whatsapp}</p>
+        <p class="text-sm text-paper/70">WhatsApp is the fastest way to ask about tables, groups or today’s cakes.</p>
+        <div class="flex flex-wrap gap-2">
+          <TableComposer client:idle branch={branch} className="btn btn-wa !min-h-11 text-sm" />
+          <a href={waLink(branch.whatsapp, helloMessage(branch.name))} target="_blank" rel="noopener" class="btn !min-h-11 bg-paper/10 text-sm text-paper hover:bg-paper/20">
+            Just say hi
+          </a>
+        </div>
+      </div>
+      <a href={`#${menuRoot}-${t.category}`} class="group relative min-h-[11rem] overflow-hidden rounded-[1.75rem] text-paper">
+        <Photo photo={t.photo} tagPosition="top" class="absolute inset-0" imgClass="transition-transform duration-700 group-hover:scale-105" sizes="(min-width: 1024px) 25vw, 100vw" widths={[400, 700, 1000]} />
+        <div class="absolute inset-0 bg-gradient-to-t from-ink/85 to-transparent" aria-hidden="true"></div>
+        <div class="absolute inset-x-0 bottom-0 p-5">
+          <p class="display text-2xl">{t.title}</p>
+          <p class="mt-1 text-sm text-paper/80">{t.text}</p>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- Menu -->
+  <section id="menu" class="container-x scroll-mt-[var(--header-h)] pb-10" aria-labelledby="menu-title">
+    <div class="mb-6 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+      <div>
+        <p class="eyebrow text-accent">{menu.title}</p>
+        <h2 id="menu-title" class="display mt-3 text-[clamp(3rem,10vw,6.5rem)]">The menu</h2>
+      </div>
+      <p class="max-w-md text-sm text-muted">
+        {itemCount} dishes and drinks, straight from the café’s menu, as a page instead of a PDF. Use the filters for vegan,
+        vegetarian or gluten-free.
+      </p>
+    </div>
+    <MenuToolbar client:visible rootId={menuRoot} categories={toolbarCategories} />
+    <MenuList menu={menu} rootId={menuRoot} />
+  </section>
+
+  <!-- Reviews note + other branches -->
+  <section class="container-x grid gap-4 py-12 md:grid-cols-[1fr_1fr_1fr]" aria-label="More from NOURISH">
+    <div id="reviews-note" class="flex flex-col justify-between gap-6 rounded-[1.75rem] bg-accent p-6 text-white">
+      <p class="eyebrow text-white/70">On Google Maps</p>
+      <p>
+        <span class="display block text-6xl">{branch.rating.value.toFixed(1)}</span>
+        <span class="text-white/85">from {formatCount(branch.rating.count)} reviews of “{branch.mapsName}”. Public rating, checked {branch.rating.checked}.</span>
+      </p>
+      <a href={instagramUrl(site.instagram)} target="_blank" rel="noopener" class="btn bg-white/15 text-white hover:bg-white/25">
+        <Icon name="instagram" size={16} /> @{site.instagram}
+      </a>
+    </div>
+    {
+      others.map((o) => (
+        <a href={`/${o.slug}`} data-branch={o.slug} class="group relative min-h-[16rem] overflow-hidden rounded-[1.75rem] text-paper">
+          <Photo photo={branchPhoto[o.slug]} tagPosition="top" class="absolute inset-0" imgClass="transition-transform duration-700 group-hover:scale-105" sizes="(min-width: 768px) 33vw, 100vw" widths={[400, 700, 1000]} transitionName={`branch-photo-${o.slug}`} />
+          <div class="absolute inset-0 bg-gradient-to-t from-ink via-ink/30 to-transparent" aria-hidden="true" />
+          <div class="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-6">
+            <div>
+              <p class="eyebrow text-paper/70">Also try</p>
+              <p class="display text-4xl" style={`view-transition-name: branch-title-${o.slug}`}>{o.name}</p>
+            </div>
+            <span class="grid size-11 place-items-center rounded-full bg-paper text-ink transition-transform group-hover:-rotate-45">
+              <Icon name="arrow-right" size={18} />
+            </span>
+          </div>
+        </a>
+      ))
+    }
+  </section>
+
+  <MobileDock branch={branch} slot="after" />
+</Base>

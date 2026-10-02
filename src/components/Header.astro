@@ -1,0 +1,149 @@
+---
+import Wordmark from './Wordmark.astro';
+import Icon from './Icon.astro';
+import BaliClock from '@/islands/BaliClock';
+import LiveStatus from '@/islands/LiveStatus';
+import { getBranches } from '@/lib/content';
+import { weeklySummary } from '@/lib/hours';
+import { directionsUrl, waLink, helloMessage } from '@/lib/links';
+
+interface Props {
+  current: string;
+}
+const { current } = Astro.props;
+const branches = getBranches();
+const links = [
+  ...branches.map((b) => ({ href: `/${b.slug}`, label: b.name, key: b.slug })),
+  { href: '/menu', label: 'Menu', key: '/menu' },
+];
+const isCurrent = (key: string) => current === key || current === `/${key}`;
+---
+
+<header class="sticky top-0 z-50" style="view-transition-name: site-header">
+  <div class="progressive-blur -bottom-6" aria-hidden="true"><div></div><div></div><div></div></div>
+  <div class="relative bg-gradient-to-b from-paper/90 to-paper/40">
+    <div class="container-x flex h-[var(--header-h)] items-center justify-between gap-4">
+      <a href="/" class="text-[1.45rem] sm:text-[1.6rem]" aria-label="NOURISH home"><Wordmark /></a>
+
+      <nav aria-label="Main" class="hidden items-center gap-1 lg:flex">
+        {
+          links.map((l) => (
+            <a
+              href={l.href}
+              aria-current={isCurrent(l.key) ? 'page' : undefined}
+              class="eyebrow rounded-full px-3.5 py-2 text-[0.74rem] transition-colors hover:bg-ink/5 aria-[current=page]:bg-ink aria-[current=page]:text-paper"
+            >
+              <span class="roll">
+                <span>{l.label}</span>
+                <span aria-hidden="true">{l.label}</span>
+              </span>
+            </a>
+          ))
+        }
+      </nav>
+
+      <div class="flex items-center gap-2">
+        <BaliClock client:idle className="eyebrow hidden text-[0.7rem] text-muted xl:inline" />
+        <button
+          type="button"
+          data-open-search
+          class="btn btn-ghost !min-h-10 !px-3 text-sm"
+          aria-label="Find a dish (shortcut: Ctrl K)"
+        >
+          <Icon name="search" size={16} />
+          <span class="hidden sm:inline">Find a dish</span>
+          <kbd class="ml-1 hidden rounded-md bg-ink/5 px-1.5 py-0.5 font-sans text-[0.68rem] text-muted md:inline">⌘K</kbd>
+        </button>
+        <button
+          type="button"
+          popovertarget="mobile-nav"
+          class="btn btn-ink !min-h-10 !px-3 lg:hidden"
+          aria-label="Open menu"
+        >
+          <Icon name="menu" size={18} />
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div
+  id="mobile-nav"
+  popover
+  class="mobile-nav m-0 h-dvh max-h-none w-full max-w-none overflow-y-auto bg-ink p-0 text-paper"
+  data-lenis-prevent
+>
+  <div class="container-x flex min-h-full flex-col pb-10">
+    <div class="flex h-[var(--header-h)] items-center justify-between">
+      <a href="/" class="text-[1.45rem]"><Wordmark /></a>
+      <button type="button" popovertarget="mobile-nav" popovertargetaction="hide" class="btn !min-h-10 !px-3 bg-paper text-ink" aria-label="Close menu">
+        <Icon name="close" size={18} />
+      </button>
+    </div>
+    <nav aria-label="Mobile" class="mt-6 flex flex-col">
+      {
+        branches.map((b, i) => (
+          <a href={`/${b.slug}`} class="group border-b border-paper/15 py-5" style={`--i:${i}`}>
+            <span class="display block text-[clamp(2.75rem,15vw,4.5rem)]">{b.name}</span>
+            <span class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-paper/70">
+              <LiveStatus client:idle branch={b} variant="inline" fallback={weeklySummary(b.hours)[0].hours} />
+              <span>{b.area}</span>
+            </span>
+          </a>
+        ))
+      }
+      <a href="/menu" class="border-b border-paper/15 py-5">
+        <span class="display block text-[clamp(2.75rem,15vw,4.5rem)]">Menu</span>
+      </a>
+    </nav>
+    <div class="mt-8 grid gap-3">
+      <p class="eyebrow text-paper/60">Message a café</p>
+      <div class="grid grid-cols-3 gap-2">
+        {
+          branches.map((b) => (
+            <a href={waLink(b.whatsapp, helloMessage(b.name))} target="_blank" rel="noopener" class="btn btn-wa !px-2 text-sm">
+              <Icon name="whatsapp" size={16} /> {b.name}
+            </a>
+          ))
+        }
+      </div>
+      <div class="grid grid-cols-3 gap-2">
+        {
+          branches.map((b) => (
+            <a href={directionsUrl(b.maps)} target="_blank" rel="noopener" class="btn bg-paper/10 !px-2 text-sm text-paper">
+              <Icon name="directions" size={15} /> Go
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .mobile-nav {
+    inset: 0;
+    border: 0;
+  }
+  .mobile-nav:popover-open {
+    animation: nav-in 0.5s var(--ease-out-expo) both;
+  }
+  .mobile-nav:popover-open nav > a {
+    animation: nav-item 0.6s var(--ease-out-expo) both;
+    animation-delay: calc(var(--i, 3) * 60ms + 80ms);
+  }
+  @keyframes nav-in {
+    from {
+      clip-path: inset(0 0 100% 0);
+    }
+    to {
+      clip-path: inset(0 0 0 0);
+    }
+  }
+  @keyframes nav-item {
+    from {
+      opacity: 0;
+      transform: translateY(1.5rem);
+    }
+  }
+</style>

@@ -1,0 +1,153 @@
+---
+import Photo from '@/components/Photo.astro';
+import Icon from '@/components/Icon.astro';
+import HeroShader from '@/islands/HeroShader';
+import LiveStatus from '@/islands/LiveStatus';
+import BaliClock from '@/islands/BaliClock';
+import { getBranches, totalReviews } from '@/lib/content';
+import { weeklySummary } from '@/lib/hours';
+import { PHASE_COLORS } from '@/lib/phase';
+import { formatCount } from '@/lib/format';
+
+const branches = getBranches();
+const letters = 'NOURISH'.split('');
+const reviews = totalReviews();
+---
+
+<section id="hero" class="hero relative isolate -mt-[var(--header-h)] overflow-hidden pt-[var(--header-h)]" data-phase="day">
+  <!-- CSS fallback under the shader, coloured by the same Bali-time phase -->
+  <div class="hero-bg absolute inset-0 -z-10" aria-hidden="true"></div>
+  <div class="absolute inset-0 -z-10" aria-hidden="true"><HeroShader client:idle /></div>
+  <div class="grain -z-10" aria-hidden="true"></div>
+
+  <div class="container-x flex min-h-[calc(100svh-var(--header-h))] flex-col justify-center pb-12 pt-8 lg:pb-14">
+    <div class="hero-copy">
+      <p class="eyebrow mb-5 flex flex-wrap items-center gap-x-3 gap-y-1 opacity-80">
+        <span>3 cafés in Bali</span><span aria-hidden="true">·</span><span>Uluwatu</span><span aria-hidden="true">·</span><span>Ungasan</span><span aria-hidden="true">·</span><span>Berawa</span>
+      </p>
+
+      <h1 class="display relative z-0 text-[clamp(4rem,18.6vw,19rem)] leading-[0.8]" aria-label="NOURISH">
+        <span class="sr-only">NOURISH</span>
+        <span class="flex" aria-hidden="true">
+          {
+            letters.map((l, i) => (
+              <span class="inline-block overflow-hidden pb-[0.06em]">
+                <span class="inline-block animate-rise" style={`animation-delay:${120 + i * 55}ms`}>
+                  {l}
+                </span>
+              </span>
+            ))
+          }
+          <span class="inline-block overflow-hidden pb-[0.06em]">
+            <span class="hero-dot inline-block animate-rise" style="animation-delay:560ms">.</span>
+          </span>
+        </span>
+      </h1>
+    </div>
+
+    <div class="mt-6 grid gap-10 lg:mt-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.75fr)] lg:items-end lg:gap-8">
+      <div class="hero-copy">
+        <p class="serif-accent max-w-[34rem] text-[clamp(1.5rem,4.4vw,2.35rem)] leading-[1.08] animate-fade" style="animation-delay:500ms">
+          Bowls, brekkie and good coffee, from the cliffs of Uluwatu to the ricefields of Berawa.
+        </p>
+
+        <div class="mt-7 flex flex-wrap gap-3 animate-fade" style="animation-delay:650ms">
+          <a href="/menu" class="btn btn-ink">See the menu <Icon name="arrow-right" size={16} /></a>
+          <a href="#cafes" class="btn btn-ghost">Find your café</a>
+        </div>
+
+        <div class="status-board mt-8 max-w-xl rounded-3xl bg-white/60 p-2 ring-1 ring-black/5 backdrop-blur-md animate-fade" style="animation-delay:800ms">
+          <div class="flex items-center justify-between px-3 pb-1 pt-2">
+            <p class="eyebrow text-[0.66rem] text-ink/60">Right now</p>
+            <BaliClock client:idle className="eyebrow text-[0.66rem] text-ink/60" />
+          </div>
+          <ul class="divide-y divide-ink/5">
+            {
+              branches.map((b) => (
+                <li>
+                  <a href={`/${b.slug}`} class="group flex items-center justify-between gap-3 rounded-2xl px-3 py-2.5 transition-colors hover:bg-white/70 max-sm:flex-col max-sm:items-start max-sm:gap-0.5">
+                    <span class="display text-lg text-ink">{b.name}</span>
+                    <span class="flex items-center gap-2 text-ink sm:text-right">
+                      <LiveStatus client:load branch={b} variant="inline" fallback={weeklySummary(b.hours)[0].hours} />
+                      <Icon name="arrow-right" size={15} class="hidden opacity-40 transition-transform group-hover:translate-x-0.5 group-hover:opacity-100 sm:block" />
+                    </span>
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+
+      <div class="relative z-10 mx-auto w-full max-w-[20rem] animate-fade lg:mx-0 lg:-mt-[16vw] lg:max-w-[25rem] lg:justify-self-end xl:-mt-[13vw]" style="animation-delay:400ms">
+        <div class="hero-photo relative aspect-[4/5] rotate-[2.5deg] overflow-hidden rounded-[999px_999px_2rem_2rem] shadow-2xl shadow-ink/25 ring-8 ring-white/50">
+          <Photo photo="bowlHero" class="h-full" sizes="(min-width: 1024px) 25rem, 20rem" loading="eager" widths={[400, 640, 900]} />
+        </div>
+        <a
+          href="#reviews"
+          class="absolute -left-4 bottom-10 flex -rotate-6 items-center gap-2 rounded-2xl bg-ink px-4 py-3 text-paper shadow-xl transition-transform hover:rotate-0 sm:-left-10"
+        >
+          <Icon name="star" size={18} class="text-amber-300" />
+          <span class="text-sm leading-tight"><strong class="block text-base">{formatCount(reviews)}</strong>Google reviews</span>
+        </a>
+        <span class="absolute -right-2 top-12 rotate-6 rounded-full bg-paper px-3.5 py-2 text-xs font-bold text-ink shadow-lg sm:-right-6">
+          <Icon name="paw" size={14} class="mr-1 inline" /> Pet-friendly
+        </span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script is:inline define:vars={{ colors: PHASE_COLORS }}>
+  // Set the Bali-time mood before first paint so the fallback gradient and text colour never flash.
+  (function () {
+    var m = new Date(Date.now() + 8 * 3600e3);
+    var t = m.getUTCHours() * 60 + m.getUTCMinutes();
+    var p = t < 300 ? 'night' : t < 540 ? 'dawn' : t < 960 ? 'day' : t < 1140 ? 'dusk' : 'night';
+    var el = document.getElementById('hero');
+    if (!el) return;
+    el.dataset.phase = p;
+    colors[p].forEach(function (c, i) {
+      el.style.setProperty('--c' + i, c);
+    });
+  })();
+</script>
+
+<style>
+  .hero {
+    --c0: #fbe38e;
+    --c1: #9fd9c9;
+    --c2: #f8f1e3;
+    --c3: #f6a9c4;
+    color: var(--color-ink);
+  }
+  .hero-bg {
+    background:
+      radial-gradient(60% 55% at 15% 20%, var(--c0), transparent 70%),
+      radial-gradient(55% 60% at 85% 25%, var(--c3), transparent 70%),
+      radial-gradient(70% 60% at 70% 90%, var(--c1), transparent 70%),
+      var(--c2);
+  }
+  .hero[data-phase='night'] .hero-copy {
+    color: var(--color-paper);
+  }
+  .hero[data-phase='night'] .hero-copy .btn-ghost {
+    color: var(--color-ink);
+  }
+  .hero-dot {
+    color: var(--accent);
+  }
+  .hero[data-phase='night'] .hero-dot {
+    color: var(--accent-glow);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-photo {
+      animation: float 9s ease-in-out infinite;
+    }
+    @keyframes float {
+      50% {
+        transform: translateY(-10px) rotate(1deg);
+      }
+    }
+  }
+</style>

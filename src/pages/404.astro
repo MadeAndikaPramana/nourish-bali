@@ -1,0 +1,25 @@
+---
+import Base from '@/layouts/Base.astro';
+import Icon from '@/components/Icon.astro';
+import { getBranches } from '@/lib/content';
+
+const branches = getBranches();
+---
+
+<Base title="Lost in the sawah" description="This page doesn't exist.">
+  <section class="container-x flex min-h-[70svh] flex-col items-start justify-center py-16">
+    <p class="eyebrow text-accent">404</p>
+    <h1 class="display mt-4 text-[clamp(3.5rem,14vw,9rem)]">Lost in<br />the sawah</h1>
+    <p class="serif-accent mt-5 max-w-lg text-2xl">This page wandered off into the ricefields. Try one of the cafés instead.</p>
+    <div class="mt-8 flex flex-wrap gap-2">
+      {
+        branches.map((b) => (
+          <a href={`/${b.slug}`} data-branch={b.slug} class="btn btn-accent">
+            {b.name} <Icon name="arrow-right" size={15} />
+          </a>
+        ))
+      }
+      <a href="/menu" class="btn btn-ghost">Menu</a>
+    </div>
+  </section>
+</Base>

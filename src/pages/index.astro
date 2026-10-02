@@ -1,0 +1,29 @@
+---
+import Base from '@/layouts/Base.astro';
+import Hero from '@/components/home/Hero.astro';
+import CurvedMarquee from '@/components/home/CurvedMarquee.astro';
+import SignatureStrip from '@/components/home/SignatureStrip.astro';
+import BranchCards from '@/components/home/BranchCards.astro';
+import SouthBaliMap from '@/components/home/SouthBaliMap.astro';
+import Reviews from '@/components/home/Reviews.astro';
+import InstagramCta from '@/components/home/InstagramCta.astro';
+import { getBranches, getSite } from '@/lib/content';
+import { branchJsonLd } from '@/lib/seo';
+
+const site = getSite();
+const words = ['Smoothie bowls', 'Açaí', 'Poke', 'Shakshouka', 'Falafel wrap', 'Bagels', 'French toast', 'Carrot cake', 'Pizza', 'Flat white'];
+---
+
+<Base
+  title="NOURISH Bali"
+  description={`${site.tagline} Menus, opening hours, WhatsApp and directions for Uluwatu, Ungasan and Berawa.`}
+  jsonLd={getBranches().map((b) => branchJsonLd(b, Astro.site!))}
+>
+  <Hero />
+  <CurvedMarquee words={words} />
+  <SignatureStrip />
+  <BranchCards />
+  <SouthBaliMap />
+  <Reviews />
+  <InstagramCta />
+</Base>

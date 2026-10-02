@@ -1,0 +1,82 @@
+---
+import '@/styles/global.css';
+import 'lenis/dist/lenis.css';
+import Header from '@/components/Header.astro';
+import Footer from '@/components/Footer.astro';
+import Announcement from '@/components/Announcement.astro';
+import DishSearch from '@/islands/DishSearch';
+import { INDEXABLE, SITE_NAME } from '@/lib/site';
+import type { BranchSlug } from '@/lib/schema';
+
+interface Props {
+  title: string;
+  description: string;
+  branch?: BranchSlug;
+  jsonLd?: object[];
+  ogImage?: string;
+  /** Hide the global header/footer (admin). */
+  bare?: boolean;
+}
+
+const { title, description, branch, jsonLd = [], ogImage = '/og/home.png', bare = false } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const fullTitle = title === SITE_NAME ? title : `${title} · ${SITE_NAME}`;
+---
+
+<!doctype html>
+<html lang="en" data-branch={branch}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    {!INDEXABLE && <meta name="robots" content="noindex, nofollow, noarchive" />}
+    <link rel="canonical" href={canonical} />
+    <meta name="theme-color" content="#f6f1e7" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={new URL(ogImage, Astro.site)} />
+    <meta name="twitter:card" content="summary_large_image" />
+    {jsonLd.map((data) => <script type="application/ld+json" set:html={JSON.stringify(data)} />)}
+  </head>
+  <body>
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[100] focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:text-paper"
+      >Skip to content</a
+    >
+    {
+      !bare && (
+        <>
+          <Announcement />
+          <Header current={branch ?? Astro.url.pathname} />
+        </>
+      )
+    }
+    <main id="main">
+      <slot />
+    </main>
+    {!bare && <Footer />}
+    <slot name="after" />
+    {!bare && <DishSearch client:idle />}
+
+    <script>
+      import Lenis from 'lenis';
+
+      // Smooth scroll only for mouse/trackpad users who haven't asked for less motion; touch keeps native scroll.
+      const ok = matchMedia('(pointer: fine) and (prefers-reduced-motion: no-preference)').matches;
+      if (ok) {
+        const lenis = new Lenis({ lerp: 0.11, anchors: { offset: -96 } });
+        (window as unknown as { lenis: Lenis }).lenis = lenis;
+        const raf = (t: number) => {
+          lenis.raf(t);
+          requestAnimationFrame(raf);
+        };
+        requestAnimationFrame(raf);
+      }
+    </script>
+  </body>
+</html>

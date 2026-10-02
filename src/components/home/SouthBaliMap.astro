@@ -1,0 +1,183 @@
+---
+import { getBranches } from '@/lib/content';
+import Icon from '@/components/Icon.astro';
+
+/**
+ * Hand-drawn South Bali (not to scale, not a real map). The route draws itself when scrolled into view,
+ * after Skiper UI's scroll-drawn SVG path. Coordinates are rough lon/lat projected onto a 1000x800 box.
+ */
+type Pt = [number, number];
+
+// Catmull-Rom → cubic Bézier, closed or open.
+function smooth(points: Pt[], closed = false, t = 0.5): string {
+  const p = closed ? [points[points.length - 1], ...points, points[0], points[1]] : [points[0], ...points, points[points.length - 1]];
+  let d = `M ${points[0][0]} ${points[0][1]}`;
+  for (let i = 1; i < p.length - 2; i++) {
+    const [p0, p1, p2, p3] = [p[i - 1], p[i], p[i + 1], p[i + 2]];
+    const c1: Pt = [p1[0] + ((p2[0] - p0[0]) * t) / 3, p1[1] + ((p2[1] - p0[1]) * t) / 3];
+    const c2: Pt = [p2[0] - ((p3[0] - p1[0]) * t) / 3, p2[1] - ((p3[1] - p1[1]) * t) / 3];
+    d += ` C ${c1[0].toFixed(1)} ${c1[1].toFixed(1)}, ${c2[0].toFixed(1)} ${c2[1].toFixed(1)}, ${p2[0]} ${p2[1]}`;
+  }
+  return closed ? d + ' Z' : d;
+}
+
+const coast: Pt[] = [
+  [200, -20], [260, 83], [290, 113], [348, 150], [400, 187], [428, 233], [460, 283], [472, 327], [462, 370], [436, 400],
+  [424, 430], [448, 462], [440, 515], [400, 550], [340, 566], [292, 575], [266, 600], [246, 621], [212, 640], [158, 652],
+  [136, 697], [152, 728], [194, 744], [262, 754], [332, 759], [402, 763], [474, 767], [560, 752], [640, 712], [700, 660],
+  [742, 600], [748, 540], [730, 482], [712, 440], [698, 422], [688, 446], [678, 482], [640, 497], [582, 487], [538, 458],
+  [524, 418], [532, 378], [566, 352], [622, 340], [682, 343], [742, 326], [800, 296], [858, 236], [882, 170], [900, 110],
+  [945, 40], [1010, -20],
+];
+const land = smooth(coast) + ' L 1010 -20 L 200 -20 Z';
+
+const route: Pt[] = [[378, 128], [438, 245], [476, 352], [468, 448], [432, 520], [382, 574], [332, 606], [292, 628], [266, 642]];
+const routeD = smooth(route);
+
+const branches = getBranches();
+const pins: Record<string, { x: number; y: number; dx: number; dy: number; anchor: 'start' | 'end' }> = {
+  berawa: { x: 378, y: 128, dx: 18, dy: -14, anchor: 'start' },
+  ungasan: { x: 332, y: 606, dx: 18, dy: -16, anchor: 'start' },
+  uluwatu: { x: 266, y: 642, dx: -6, dy: 46, anchor: 'start' },
+};
+---
+
+<section class="container-x py-20 lg:py-28" aria-labelledby="map-title">
+  <div class="grid items-center gap-10 lg:grid-cols-[0.8fr_1.2fr]">
+    <div class="order-2 lg:order-1">
+      <p class="eyebrow text-accent">South Bali</p>
+      <h2 id="map-title" class="display mt-3 text-[clamp(2.6rem,8vw,5rem)]">From the sawah<br />to the cliffs</h2>
+      <p class="mt-5 max-w-md text-muted">
+        Berawa sits among the ricefields of Canggu. Uluwatu and Ungasan are down on the Bukit, close to the surf breaks.
+      </p>
+      <ol class="mt-8 grid gap-2">
+        {
+          branches.map((b, i) => (
+            <li data-branch={b.slug}>
+              <a href={`/${b.slug}`} class="group flex items-center gap-4 rounded-2xl bg-cream px-4 py-3 ring-1 ring-line transition-colors hover:bg-accent-soft">
+                <span class="grid size-9 place-items-center rounded-full bg-accent font-display text-sm font-bold text-white">{i + 1}</span>
+                <span class="flex-1">
+                  <span class="display block text-xl">{b.name}</span>
+                  <span class="text-sm text-muted">{b.area}</span>
+                </span>
+                <Icon name="arrow-right" size={18} class="text-accent transition-transform group-hover:translate-x-1" />
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+
+    <figure class="bali-map order-1 lg:order-2" data-map>
+      <svg viewBox="110 -10 840 800" class="h-auto w-full" role="img" aria-labelledby="map-desc">
+        <desc id="map-desc">Illustrated map of South Bali showing Berawa in Canggu and the Uluwatu and Ungasan cafés on the Bukit peninsula. Not to scale.</desc>
+        <defs>
+          <pattern id="sea" width="22" height="22" patternUnits="userSpaceOnUse" patternTransform="rotate(-20)">
+            <path d="M0 11 q 5.5 -5 11 0 t 11 0" fill="none" stroke="currentColor" stroke-opacity=".12" stroke-width="1.4"></path>
+          </pattern>
+          <mask id="route-mask">
+            <path d={routeD} class="route-reveal" fill="none" stroke="#fff" stroke-width="14" stroke-linecap="round" pathLength="1"></path>
+          </mask>
+        </defs>
+        <rect x="110" y="-10" width="840" height="800" rx="40" class="fill-[#dcebe8]"></rect>
+        <rect x="110" y="-10" width="840" height="800" rx="40" fill="url(#sea)" class="text-[#0e6872]"></rect>
+        <path d={land} class="fill-[#f3ead9] stroke-[#c9b896]" stroke-width="2.5" stroke-linejoin="round"></path>
+        <!-- rice terraces hint near Berawa -->
+        <g class="text-[#46701b]" opacity=".5">
+          {[0, 1, 2, 3].map((i) => <path d={`M ${330 + i * 14} ${60 + i * 10} q 40 -18 80 0`} fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />)}
+        </g>
+        <text x="560" y="250" class="serif-accent fill-ink/45" font-size="28">Kuta</text>
+        <text x="300" y="40" class="serif-accent fill-ink/45" font-size="28">Canggu</text>
+        <text x="560" y="712" class="serif-accent fill-ink/45" font-size="30">Bukit</text>
+        <text x="170" y="420" class="serif-accent fill-[#0e6872]/60" font-size="30">Indian Ocean</text>
+
+        <path d={routeD} fill="none" stroke="#141311" stroke-width="3.5" stroke-dasharray="2 10" stroke-linecap="round" mask="url(#route-mask)"></path>
+
+        {
+          branches.map((b, i) => {
+            const p = pins[b.slug];
+            return (
+              <g class="pin" data-branch={b.slug} style={`--d:${0.4 + i * 0.55}s`}>
+                <circle cx={p.x} cy={p.y} r="22" class="pin-pulse fill-accent" opacity=".25" />
+                <circle cx={p.x} cy={p.y} r="11" class="fill-accent stroke-white" stroke-width="4" />
+                <text x={p.x + p.dx} y={p.y + p.dy} text-anchor={p.anchor} class="display fill-ink" font-size="30">
+                  {b.name}
+                </text>
+              </g>
+            );
+          })
+        }
+      </svg>
+      <figcaption class="mt-3 text-center text-xs text-muted">Illustration, not to scale.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<style>
+  .route-reveal {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+  }
+  .pin {
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .bali-map.is-drawn .route-reveal {
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 2.4s cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  .bali-map.is-drawn .pin {
+    animation: pin-in 0.7s var(--ease-spring) both;
+    animation-delay: var(--d);
+  }
+  .bali-map.is-drawn .pin-pulse {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: pulse 2.4s ease-out infinite;
+    animation-delay: calc(var(--d) + 0.6s);
+  }
+  @keyframes pin-in {
+    from {
+      opacity: 0;
+      transform: translateY(-14px) scale(0.6);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes pulse {
+    from {
+      transform: scale(0.6);
+      opacity: 0.5;
+    }
+    to {
+      transform: scale(1.8);
+      opacity: 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .route-reveal {
+      stroke-dashoffset: 0;
+    }
+    .pin {
+      opacity: 1;
+    }
+  }
+</style>
+
+<script>
+  const map = document.querySelector('[data-map]');
+  if (map) {
+    new IntersectionObserver(
+      ([e], io) => {
+        if (e.isIntersecting) {
+          map.classList.add('is-drawn');
+          io.disconnect();
+        }
+      },
+      { threshold: 0.35 },
+    ).observe(map);
+  }
+</script>

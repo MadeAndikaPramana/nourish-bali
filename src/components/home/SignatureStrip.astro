@@ -1,0 +1,113 @@
+---
+import Photo from '@/components/Photo.astro';
+import { signatureDishes } from '@/lib/photos';
+import { getMenus } from '@/lib/content';
+import { TAG_LABELS } from '@/lib/schema';
+
+// Pull real dietary tags from the menus for each signature dish.
+const allItems = Object.values(getMenus()).flatMap((m) => m.categories.flatMap((c) => c.items));
+const tagsFor = (menuName: string) => allItems.find((i) => i.name.toLowerCase() === menuName.toLowerCase())?.tags ?? [];
+---
+
+<section id="dishes" class="hscroll relative" data-hscroll aria-labelledby="dishes-title">
+  <div class="hscroll-pin">
+    <div class="container-x flex flex-col gap-3 pb-8 pt-16 lg:flex-row lg:items-end lg:justify-between lg:pt-0">
+      <div>
+        <p class="eyebrow text-accent">What people come for</p>
+        <h2 id="dishes-title" class="display mt-3 text-[clamp(2.6rem,8vw,5.5rem)]">Signature<br class="sm:hidden" /> plates</h2>
+      </div>
+      <p class="max-w-sm text-sm text-muted">
+        Dish names from the NOURISH menus. Every photo here is a stock placeholder until the café's own shots go in.
+      </p>
+    </div>
+    <ol class="hscroll-track scrollbar-none flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-6 sm:px-6 lg:gap-6 lg:overflow-visible lg:px-10" data-track>
+      {
+        signatureDishes.map((d, i) => (
+          <li class="group w-[78vw] shrink-0 snap-start sm:w-[22rem] lg:w-[min(24rem,calc((100svh-17rem)*0.8))]">
+            <article class="flex h-full flex-col">
+              <div class="relative aspect-[4/5] overflow-hidden rounded-[1.75rem] bg-sand">
+                <Photo photo={d.photo} class="h-full" imgClass="transition-transform duration-700 group-hover:scale-[1.04]" sizes="(min-width: 1024px) 24rem, 78vw" widths={[400, 640, 900]} />
+                <span class="absolute right-3 top-3 grid size-10 place-items-center rounded-full bg-paper/90 font-display text-sm font-bold text-ink">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+              </div>
+              <div class="flex items-start justify-between gap-3 px-1 pt-4">
+                <div>
+                  <h3 class="display text-[1.65rem]">{d.name}</h3>
+                  <p class="mt-1 text-sm text-muted">
+                    On the menu as <span class="font-semibold text-ink">{d.menuName}</span> · {d.branches}
+                  </p>
+                </div>
+                <div class="flex shrink-0 gap-1 pt-1">
+                  {tagsFor(d.menuName).map((t) => (
+                    <span title={TAG_LABELS[t]} class="rounded-full px-1.5 py-0.5 text-[0.65rem] font-bold ring-1 ring-line">
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </article>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  @media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+    .hscroll[data-ready] .hscroll-pin {
+      position: sticky;
+      top: 0;
+      height: 100svh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .hscroll[data-ready] .hscroll-track {
+      will-change: transform;
+      scroll-snap-type: none;
+    }
+  }
+</style>
+
+<script>
+  // Desktop: vertical scroll drives the strip sideways (pinned). Mobile keeps native swipe + snap.
+  const section = document.querySelector<HTMLElement>('[data-hscroll]');
+  const track = section?.querySelector<HTMLElement>('[data-track]');
+  const mq = matchMedia('(min-width: 1024px) and (prefers-reduced-motion: no-preference)');
+
+  if (section && track) {
+    let distance = 0;
+    let frame = 0;
+
+    const measure = () => {
+      if (!mq.matches) {
+        section.removeAttribute('data-ready');
+        section.style.height = '';
+        track.style.transform = '';
+        return;
+      }
+      section.setAttribute('data-ready', '');
+      distance = Math.max(0, track.scrollWidth - window.innerWidth);
+      section.style.height = `${window.innerHeight + distance}px`;
+      update();
+    };
+
+    const update = () => {
+      frame = 0;
+      if (!mq.matches) return;
+      const top = section.getBoundingClientRect().top;
+      const progress = Math.min(1, Math.max(0, -top / Math.max(1, distance)));
+      track.style.transform = `translate3d(${-progress * distance}px,0,0)`;
+    };
+
+    window.addEventListener('scroll', () => (frame ||= requestAnimationFrame(update)), { passive: true });
+    window.addEventListener('resize', measure);
+    mq.addEventListener('change', measure);
+    // Images change the track width once decoded.
+    window.addEventListener('load', measure);
+    measure();
+  }
+</script>

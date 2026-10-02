@@ -1,0 +1,69 @@
+{
+  "slug": "uluwatu",
+  "name": "Uluwatu",
+  "mapsName": "NOURISH CAFE ULUWATU",
+  "tagline": "Surf, cliffs and a long breakfast on the Bukit.",
+  "area": "Pecatu, Bukit",
+  "address": "Jl. Labuansait No.52, Pecatu, Kec. Kuta Selatan, Kabupaten Badung, Bali 80361",
+  "whatsapp": "+62 813-3777-2517",
+  "maps": {
+    "query": "NOURISH CAFE ULUWATU, Jl. Labuansait No.52, Pecatu, Kuta Selatan, Badung, Bali 80361"
+  },
+  "rating": {
+    "value": 4.5,
+    "count": 3740,
+    "checked": "2026-10-02"
+  },
+  "hours": {
+    "mon": [
+      {
+        "open": "07:00",
+        "close": "22:30"
+      }
+    ],
+    "tue": [
+      {
+        "open": "07:00",
+        "close": "22:30"
+      }
+    ],
+    "wed": [
+      {
+        "open": "07:00",
+        "close": "22:30"
+      }
+    ],
+    "thu": [
+      {
+        "open": "07:00",
+        "close": "22:30"
+      }
+    ],
+    "fri": [
+      {
+        "open": "07:00",
+        "close": "22:30"
+      }
+    ],
+    "sat": [
+      {
+        "open": "07:00",
+        "close": "22:30"
+      }
+    ],
+    "sun": [
+      {
+        "open": "07:00",
+        "close": "22:30"
+      }
+    ]
+  },
+  "hoursConfirmed": false,
+  "specialDays": [],
+  "temporarilyClosed": {
+    "active": false,
+    "message": ""
+  },
+  "menu": "bukit",
+  "order": 1
+}

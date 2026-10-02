@@ -1,0 +1,70 @@
+---
+import Wordmark from './Wordmark.astro';
+import Icon from './Icon.astro';
+import { getBranches, getSite } from '@/lib/content';
+import { weeklySummary } from '@/lib/hours';
+import { directionsUrl, facebookUrl, helloMessage, instagramUrl, waLink } from '@/lib/links';
+import { CONCEPT_NOTICE, IS_CONCEPT } from '@/lib/site';
+
+const branches = getBranches();
+const site = getSite();
+---
+
+<footer class="relative mt-24 overflow-hidden bg-ink text-paper">
+  <div class="container-x pt-16 pb-28 lg:pb-12">
+    <div class="grid gap-10 md:grid-cols-3">
+      {
+        branches.map((b) => (
+          <section aria-labelledby={`f-${b.slug}`} data-branch={b.slug} class="flex flex-col gap-3">
+            <h2 id={`f-${b.slug}`} class="display text-3xl">
+              <a href={`/${b.slug}`} class="transition-colors hover:text-accent-glow">
+                {b.name}
+              </a>
+            </h2>
+            <p class="text-sm text-paper/70">{b.address}</p>
+            <ul class="text-sm text-paper/80">
+              {weeklySummary(b.hours).map((r) => (
+                <li>
+                  {r.days} · {r.hours}
+                  {!b.hoursConfirmed && <span class="text-paper/50"> (to be confirmed)</span>}
+                </li>
+              ))}
+            </ul>
+            <div class="mt-1 flex flex-wrap gap-2">
+              <a href={waLink(b.whatsapp, helloMessage(b.name))} target="_blank" rel="noopener" class="btn btn-wa !min-h-10 text-sm">
+                <Icon name="whatsapp" size={16} /> {b.whatsapp}
+              </a>
+              <a href={directionsUrl(b.maps)} target="_blank" rel="noopener" class="btn !min-h-10 bg-paper/10 text-sm text-paper hover:bg-paper/20">
+                <Icon name="directions" size={15} /> Directions
+              </a>
+            </div>
+          </section>
+        ))
+      }
+    </div>
+
+    <div class="mt-14 flex flex-col gap-6 border-t border-paper/15 pt-8 md:flex-row md:items-center md:justify-between">
+      <div class="flex gap-2">
+        <a href={instagramUrl(site.instagram)} target="_blank" rel="noopener" class="btn !min-h-10 bg-paper/10 text-sm text-paper hover:bg-paper/20">
+          <Icon name="instagram" size={16} /> @{site.instagram}
+        </a>
+        <a href={facebookUrl(site.facebook)} target="_blank" rel="noopener" class="btn !min-h-10 bg-paper/10 text-sm text-paper hover:bg-paper/20">
+          <Icon name="facebook" size={16} /> Facebook
+        </a>
+      </div>
+      <p class="flex items-center gap-2 text-sm text-paper/70"><Icon name="paw" size={16} /> Pet-friendly cafés</p>
+    </div>
+
+    {
+      IS_CONCEPT && (
+        <p class="mt-8 rounded-2xl bg-paper/5 p-4 text-sm text-paper/75 ring-1 ring-paper/10">
+          <strong class="text-paper">{CONCEPT_NOTICE}</strong> Built by Andika as a proposal. Photo credits are listed in the
+          project's CREDITS.md.
+        </p>
+      )
+    }
+  </div>
+  <div aria-hidden="true" class="pointer-events-none -mb-[0.12em] select-none px-2 text-center text-[17vw] leading-none text-paper/[0.07]">
+    <Wordmark />
+  </div>
+</footer>

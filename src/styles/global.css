@@ -1,0 +1,332 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/archivo/wdth.css';
+@import '@fontsource-variable/plus-jakarta-sans';
+@import '@fontsource/instrument-serif/latin-400-italic.css';
+
+/* Cross-document view transitions: branch card photo morphs into the branch hero. */
+@view-transition {
+  navigation: auto;
+}
+
+@theme {
+  --font-display: 'Archivo Variable', 'Archivo', system-ui, sans-serif;
+  --font-sans: 'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-serif: 'Instrument Serif', Georgia, serif;
+
+  --color-ink: #141311;
+  --color-paper: #f6f1e7;
+  --color-sand: #ebe3d4;
+  --color-cream: #fbf8f2;
+  --color-muted: #625d54;
+  --color-line: rgb(20 19 17 / 0.12);
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  --animate-rise: rise 0.9s var(--ease-out-expo) both;
+  --animate-fade: fade 0.8s ease both;
+
+  @keyframes rise {
+    from {
+      transform: translateY(110%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+  @keyframes fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
+
+/* Per-branch accent, switched with data-branch on <html>. */
+@theme inline {
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-glow: var(--accent-glow);
+}
+
+:root {
+  --accent: #5a2a69; /* açaí */
+  --accent-soft: #ecdff0;
+  --accent-glow: #b462d4;
+  --header-h: 4.25rem;
+  color-scheme: light;
+}
+[data-branch='uluwatu'] {
+  --accent: #0e6872; /* Bukit ocean */
+  --accent-soft: #d3ebe8;
+  --accent-glow: #36b3ad;
+}
+[data-branch='ungasan'] {
+  --accent: #b2432a; /* terracotta / tomato */
+  --accent-soft: #f6dfd2;
+  --accent-glow: #f0805a;
+}
+[data-branch='berawa'] {
+  --accent: #46701b; /* sawah green */
+  --accent-soft: #e2edc7;
+  --accent-glow: #9ccb3b;
+}
+
+@layer base {
+  html {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: calc(var(--header-h) + 4.5rem);
+  }
+  body {
+    font-family: var(--font-sans);
+    background: var(--color-paper);
+    min-height: 100dvh;
+    overflow-x: clip;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  ::selection {
+    background: var(--accent);
+    color: var(--color-paper);
+  }
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+  [hidden] {
+    display: none !important;
+  }
+}
+
+@layer components {
+  .display {
+    font-family: var(--font-display);
+    font-weight: 820;
+    font-stretch: 118%;
+    text-transform: uppercase;
+    letter-spacing: -0.015em;
+    line-height: 0.86;
+  }
+  .eyebrow {
+    font-family: var(--font-display);
+    font-weight: 650;
+    font-stretch: 110%;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 0.72rem;
+  }
+  .serif-accent {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+  .container-x {
+    width: 100%;
+    max-width: 88rem;
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+  @media (min-width: 640px) {
+    .container-x {
+      padding-inline: 1.5rem;
+    }
+  }
+  @media (min-width: 1024px) {
+    .container-x {
+      padding-inline: 2.5rem;
+    }
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 2.875rem;
+    padding: 0.7rem 1.15rem;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    line-height: 1;
+    white-space: nowrap;
+    transition:
+      transform 0.25s var(--ease-out-expo),
+      background-color 0.2s,
+      color 0.2s,
+      box-shadow 0.25s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn:active {
+    transform: scale(0.97);
+  }
+  .btn-ink {
+    background: var(--color-ink);
+    color: var(--color-paper);
+  }
+  .btn-ink:hover {
+    background: var(--accent);
+  }
+  .btn-accent {
+    background: var(--accent);
+    color: #fff;
+  }
+  .btn-accent:hover {
+    box-shadow: 0 10px 30px -10px var(--accent);
+    transform: translateY(-1px);
+  }
+  .btn-ghost {
+    background: rgb(255 255 255 / 0.55);
+    color: var(--color-ink);
+    box-shadow: inset 0 0 0 1px var(--color-line);
+    backdrop-filter: blur(8px);
+  }
+  .btn-ghost:hover {
+    background: #fff;
+  }
+  .btn-wa {
+    background: #1fa855;
+    color: #fff;
+  }
+  .btn-wa:hover {
+    background: #178a45;
+  }
+
+  /* Label every stand-in photo so nobody mistakes it for the café's own. */
+  .placeholder-tag {
+    position: absolute;
+    z-index: 2;
+    left: 0.6rem;
+    bottom: 0.6rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 999px;
+    background: rgb(20 19 17 / 0.62);
+    color: #fff;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    backdrop-filter: blur(6px);
+    pointer-events: none;
+  }
+
+  /* Text-roll hover (adapted from Skiper UI's text roll nav): two stacked copies slide up. */
+  .roll {
+    position: relative;
+    display: inline-flex;
+    overflow: hidden;
+    line-height: 1.15;
+  }
+  .roll > span {
+    display: block;
+    transition: transform 0.45s var(--ease-out-expo);
+  }
+  .roll > span + span {
+    position: absolute;
+    inset: 0;
+    transform: translateY(100%);
+  }
+  .roll:hover > span:first-child,
+  a:hover > .roll > span:first-child,
+  a:focus-visible > .roll > span:first-child {
+    transform: translateY(-100%);
+  }
+  .roll:hover > span + span,
+  a:hover > .roll > span + span,
+  a:focus-visible > .roll > span + span {
+    transform: translateY(0);
+  }
+
+  /* Progressive blur (after Rauno / Skiper UI #41): stacked backdrop blurs with stepped masks. */
+  .progressive-blur {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .progressive-blur > div {
+    position: absolute;
+    inset: 0;
+  }
+  .progressive-blur > div:nth-child(1) {
+    backdrop-filter: blur(1px);
+    mask: linear-gradient(to bottom, #000 0%, #000 40%, transparent 100%);
+  }
+  .progressive-blur > div:nth-child(2) {
+    backdrop-filter: blur(4px);
+    mask: linear-gradient(to bottom, #000 0%, #000 25%, transparent 75%);
+  }
+  .progressive-blur > div:nth-child(3) {
+    backdrop-filter: blur(10px);
+    mask: linear-gradient(to bottom, #000 0%, transparent 55%);
+  }
+
+  .grain {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.16;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+  }
+
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Scroll-triggered reveals (CSS scroll-driven where supported, static otherwise). */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal {
+      animation: reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 5% cover 28%;
+    }
+    @keyframes reveal {
+      from {
+        opacity: 0;
+        transform: translateY(2.5rem) scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  @view-transition {
+    navigation: none;
+  }
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.45s;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+::view-transition-group(*) {
+  animation-duration: 0.6s;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
