@@ -21,6 +21,13 @@ describe('content files', () => {
     }
   });
 
+  it('survive a parse → write round trip unchanged (schema key order matches the files)', () => {
+    const parsed = ContentBundle.parse(bundle);
+    expect(toJson(parsed.site)).toBe(readFileSync(CONTENT_PATHS.site, 'utf8'));
+    for (const [k, p] of Object.entries(CONTENT_PATHS.branches)) expect(toJson(parsed.branches[k as keyof typeof parsed.branches])).toBe(readFileSync(p, 'utf8'));
+    for (const [k, p] of Object.entries(CONTENT_PATHS.menus)) expect(toJson(parsed.menus[k as keyof typeof parsed.menus])).toBe(readFileSync(p, 'utf8'));
+  });
+
   it('keep the demo honest: prices are flagged as samples and hours as unconfirmed', () => {
     for (const m of Object.values(bundle.menus)) expect(Menu.parse(m).samplePrices).toBe(true);
     for (const b of Object.values(bundle.branches)) expect(Branch.parse(b).hoursConfirmed).toBe(false);

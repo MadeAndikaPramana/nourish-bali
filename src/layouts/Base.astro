@@ -14,11 +14,13 @@ interface Props {
   branch?: BranchSlug;
   jsonLd?: object[];
   ogImage?: string;
-  /** Hide the global header/footer (admin). */
+  /** Hide the global header/footer and smooth scroll (admin). */
   bare?: boolean;
+  /** Always noindex, whatever PUBLIC_INDEXABLE says. */
+  noindex?: boolean;
 }
 
-const { title, description, branch, jsonLd = [], ogImage = '/og/home.png', bare = false } = Astro.props;
+const { title, description, branch, jsonLd = [], ogImage = '/og/home.png', bare = false, noindex = false } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const fullTitle = title === SITE_NAME ? title : `${title} · ${SITE_NAME}`;
 ---
@@ -30,7 +32,7 @@ const fullTitle = title === SITE_NAME ? title : `${title} · ${SITE_NAME}`;
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
-    {!INDEXABLE && <meta name="robots" content="noindex, nofollow, noarchive" />}
+    {(!INDEXABLE || noindex) && <meta name="robots" content="noindex, nofollow, noarchive" />}
     <link rel="canonical" href={canonical} />
     <meta name="theme-color" content="#f6f1e7" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
@@ -42,7 +44,7 @@ const fullTitle = title === SITE_NAME ? title : `${title} · ${SITE_NAME}`;
     <meta name="twitter:card" content="summary_large_image" />
     {jsonLd.map((data) => <script type="application/ld+json" set:html={JSON.stringify(data)} />)}
   </head>
-  <body>
+  <body data-smooth={bare ? 'off' : undefined}>
     <a
       href="#main"
       class="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[100] focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:text-paper"
@@ -67,7 +69,8 @@ const fullTitle = title === SITE_NAME ? title : `${title} · ${SITE_NAME}`;
       import Lenis from 'lenis';
 
       // Smooth scroll only for mouse/trackpad users who haven't asked for less motion; touch keeps native scroll.
-      const ok = matchMedia('(pointer: fine) and (prefers-reduced-motion: no-preference)').matches;
+      const ok =
+        document.body.dataset.smooth !== 'off' && matchMedia('(pointer: fine) and (prefers-reduced-motion: no-preference)').matches;
       if (ok) {
         const lenis = new Lenis({ lerp: 0.11, anchors: { offset: -96 } });
         (window as unknown as { lenis: Lenis }).lenis = lenis;
