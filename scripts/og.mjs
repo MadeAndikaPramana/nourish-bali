@@ -12,14 +12,9 @@ const browser = await chromium.launch({ executablePath });
 const page = await browser.newPage({ viewport: { width: 1200, height: 630 }, deviceScaleFactor: 1 });
 for (const [name, path] of Object.entries(pages)) {
   await page.goto(BASE + path, { waitUntil: 'networkidle' });
-  // Fixed daytime mood so previews don't depend on when they were rendered.
   await page.evaluate(() => {
-    const hero = document.getElementById('hero');
-    if (hero) {
-      hero.dataset.phase = 'day';
-      ['#fbe38e', '#9fd9c9', '#f8f1e3', '#f6a9c4'].forEach((c, i) => hero.style.setProperty(`--c${i}`, c));
-    }
-    document.querySelectorAll('canvas').forEach((c) => c.remove());
+    // The home hero's "Scroll" cue means nothing in a static preview.
+    document.querySelectorAll('a[href="#hero-photo"]').forEach((e) => (e.style.visibility = 'hidden'));
     // A shared preview lives for weeks: never bake a live "Open now"/"Closed" or a clock into it.
     document.querySelectorAll('.status-board').forEach((e) => (e.style.visibility = 'hidden'));
     document.querySelectorAll('span[data-state], [title^="Bali time"]').forEach((e) => (e.style.display = 'none'));

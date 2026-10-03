@@ -11,17 +11,24 @@ const branches = getBranches();
 ---
 
 <section id="hero" class="relative" aria-labelledby="hero-title">
-  <div class="container-x pt-6 lg:pt-10">
-    <div class="eyebrow flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-muted">
+  <!-- First screen: just the wordmark. The photo starts below the fold and shows after a little scroll. -->
+  <div class="hero-intro container-x flex min-h-[calc(100svh-var(--header-h))] flex-col pt-6 pb-8 lg:pt-10 lg:pb-10">
+    <div class="hero-in eyebrow flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-muted" style="--d: 0.9s">
       <span>Healthy all-day cafés · Bali</span>
       <span>Uluwatu · Ungasan · Berawa</span>
     </div>
-    <h1 id="hero-title" class="mt-5 text-ink lg:mt-7">
+    <h1 id="hero-title" class="hero-word my-auto py-10 text-ink">
       <span class="sr-only">NOURISH, healthy all-day cafés in Bali</span>
-      <FitWordmark />
+      <span class="hero-rise block overflow-hidden" aria-hidden="true"><span class="block"><FitWordmark /></span></span>
     </h1>
+    <a href="#hero-photo" class="hero-in eyebrow flex items-center gap-3 self-start text-muted hover:text-ink" style="--d: 1.1s">
+      <span class="hero-cue relative block h-8 w-px overflow-hidden bg-line" aria-hidden="true"></span>
+      Scroll
+    </a>
+  </div>
 
-    <div class="relative mt-5 overflow-hidden rounded-[1.75rem] bg-sand lg:mt-8">
+  <div class="container-x">
+    <div id="hero-photo" class="hero-photo relative overflow-hidden rounded-[1.75rem] bg-sand">
       <Photo
         photo="spacePlants"
         class="aspect-[4/5] sm:aspect-[16/10] lg:aspect-[21/9]"
@@ -63,3 +70,78 @@ const branches = getBranches();
     <p class="mt-2 text-right text-xs text-muted">Bali time <BaliClock client:idle className="font-semibold" /></p>
   </div>
 </section>
+
+<style>
+  @media (prefers-reduced-motion: no-preference) {
+    /* On load: the wordmark rises out of its own line, then the dot and the small labels fade in. */
+    .hero-rise > span {
+      animation: hero-rise 1.1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.15s both;
+    }
+    .hero-rise :global(tspan) {
+      animation: hero-dot 0.5s ease-out 1.05s both;
+    }
+    .hero-in {
+      animation: hero-in 0.8s ease-out var(--d, 0s) both;
+    }
+    /* A thin line that keeps running down, hinting there's more below. */
+    .hero-cue::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--color-ink);
+      animation: hero-cue 1.8s cubic-bezier(0.65, 0, 0.35, 1) 1.4s infinite;
+      transform: translateY(-100%);
+    }
+    @keyframes hero-rise {
+      from {
+        transform: translateY(105%);
+      }
+    }
+    @keyframes hero-dot {
+      from {
+        fill-opacity: 0;
+      }
+    }
+    @keyframes hero-in {
+      from {
+        opacity: 0;
+        transform: translateY(0.5rem);
+      }
+    }
+    @keyframes hero-cue {
+      to {
+        transform: translateY(100%);
+      }
+    }
+
+    /* While scrolling: the wordmark eases back as the photo grows into place. */
+    @supports (animation-timeline: view()) {
+      .hero-word {
+        animation: hero-word-out linear both;
+        animation-range: exit 0% exit 100%;
+      }
+      .hero-photo {
+        animation: hero-photo-in linear both;
+        animation-range: entry 0% cover 45%;
+      }
+      /* Kept in a separate, more specific rule: the CSS minifier otherwise folds view() into the animation
+         shorthand, which browsers reject, and the whole declaration is dropped. */
+      #hero .hero-word,
+      #hero .hero-photo {
+        animation-timeline: view();
+      }
+      @keyframes hero-word-out {
+        to {
+          opacity: 0.25;
+          transform: translateY(-12%) scale(0.97);
+        }
+      }
+      @keyframes hero-photo-in {
+        from {
+          transform: scale(0.92);
+          border-radius: 3rem;
+        }
+      }
+    }
+  }
+</style>
