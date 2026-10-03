@@ -1,0 +1,31 @@
+---
+/**
+ * "NOURISH." set like the facade signage and stretched to exactly fill its container (SVG textLength),
+ * so it never overflows or gets cropped at any screen width.
+ */
+interface Props {
+  class?: string;
+  /** Show the full stop in the accent colour. */
+  accentDot?: boolean;
+  label?: string;
+}
+const { class: className = '', accentDot = true, label } = Astro.props;
+---
+
+<svg
+  viewBox="0 0 1000 150"
+  class:list={['block h-auto w-full overflow-visible', className]}
+  role={label ? 'img' : undefined}
+  aria-label={label}
+  aria-hidden={label ? undefined : 'true'}
+>
+  <text
+    x="0"
+    y="128"
+    textLength="1000"
+    lengthAdjust="spacingAndGlyphs"
+    class="signage fill-current"
+    font-size="150"
+    style="letter-spacing:0"
+  >NOURISH<tspan class={accentDot ? 'fill-accent' : undefined}>.</tspan></text>
+</svg>

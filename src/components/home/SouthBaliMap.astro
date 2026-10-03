@@ -47,7 +47,7 @@ const pins: Record<string, { x: number; y: number; dx: number; dy: number; ancho
   <div class="grid items-center gap-10 lg:grid-cols-[0.8fr_1.2fr]">
     <div class="order-2 lg:order-1">
       <p class="eyebrow text-accent">South Bali</p>
-      <h2 id="map-title" class="display mt-3 text-[clamp(2.6rem,8vw,5rem)]">From the sawah<br />to the cliffs</h2>
+      <h2 id="map-title" class="serif mt-5 text-[clamp(2.4rem,6vw,4.5rem)] leading-[0.95]">From the sawah<br />to the cliffs</h2>
       <p class="mt-5 max-w-md text-muted">
         Berawa sits among the ricefields of Canggu. Uluwatu and Ungasan are down on the Bukit, close to the surf breaks.
       </p>
@@ -80,17 +80,17 @@ const pins: Record<string, { x: number; y: number; dx: number; dy: number; ancho
             <path d={routeD} class="route-reveal" fill="none" stroke="#fff" stroke-width="14" stroke-linecap="round" pathLength="1"></path>
           </mask>
         </defs>
-        <rect x="110" y="-10" width="840" height="800" rx="40" class="fill-[#dcebe8]"></rect>
-        <rect x="110" y="-10" width="840" height="800" rx="40" fill="url(#sea)" class="text-[#0e6872]"></rect>
-        <path d={land} class="fill-[#f3ead9] stroke-[#c9b896]" stroke-width="2.5" stroke-linejoin="round"></path>
+        <rect x="110" y="-10" width="840" height="800" rx="40" class="fill-[#dde4e2]"></rect>
+        <rect x="110" y="-10" width="840" height="800" rx="40" fill="url(#sea)" class="text-[#2f5661]"></rect>
+        <path d={land} class="fill-[#fbfaf7] stroke-[#c9c2b5]" stroke-width="2.5" stroke-linejoin="round"></path>
         <!-- rice terraces hint near Berawa -->
-        <g class="text-[#46701b]" opacity=".5">
+        <g class="text-[#4d6833]" opacity=".5">
           {[0, 1, 2, 3].map((i) => <path d={`M ${345 + i * 14} ${88 + i * 10} q 40 -18 80 0`} fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />)}
         </g>
         <text x="560" y="250" class="serif-accent fill-ink/45" font-size="28">Kuta</text>
         <text x="300" y="40" class="serif-accent fill-ink/45" font-size="28">Canggu</text>
         <text x="540" y="742" class="serif-accent fill-ink/45" font-size="30">Bukit</text>
-        <text x="170" y="420" class="serif-accent fill-[#0e6872]/60" font-size="30">Indian Ocean</text>
+        <text x="170" y="420" class="serif-accent fill-[#2f5661]/60" font-size="30">Indian Ocean</text>
 
         <path d={routeD} fill="none" stroke="#141311" stroke-width="3.5" stroke-dasharray="2 10" stroke-linecap="round" mask="url(#route-mask)"></path>
 

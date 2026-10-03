@@ -1,0 +1,37 @@
+---
+import { getMenus } from '@/lib/content';
+import { TAG_LABELS, TAGS } from '@/lib/constants';
+
+/** Real counts from the menus: unique dishes and drinks carrying each mark, across both menus. */
+const items = Object.values(getMenus()).flatMap((m) => m.categories.flatMap((c) => c.items));
+const unique = new Map(items.map((i) => [i.name.toLowerCase(), i]));
+const count = (t: (typeof TAGS)[number]) => [...unique.values()].filter((i) => i.tags.includes(t)).length;
+const stats = TAGS.map((t) => ({ tag: t, label: TAG_LABELS[t], n: count(t) }));
+---
+
+<section class="bg-olive py-16 text-paper lg:py-20" aria-labelledby="diet-title" style="--accent:#a9b77f">
+  <div class="container-x grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+    <div>
+      <p class="eyebrow text-paper/70">Made for every diet</p>
+      <h2 id="diet-title" class="serif mt-5 text-[clamp(2.2rem,5vw,4rem)]">Marked on every menu, filterable here.</h2>
+    </div>
+    <ul class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      {
+        stats.map((s) => (
+          <li>
+            <a
+              href={`/menu?diet=${s.tag}`}
+              class="group flex h-full flex-col justify-between gap-6 rounded-[1.25rem] bg-paper/8 p-5 ring-1 ring-paper/15 transition-colors hover:bg-paper/15"
+            >
+              <span class="signage text-[2.6rem]">{s.n}</span>
+              <span class="text-sm">
+                <span class="font-semibold">{s.label}</span>
+                <span class="block text-paper/60">dishes & drinks ({s.tag}) →</span>
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>

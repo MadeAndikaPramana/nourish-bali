@@ -43,6 +43,7 @@ const positioned = /\b(absolute|fixed|sticky)\b/.test(className);
     format="webp"
     quality={70}
     class:list={['h-full w-full object-cover', imgClass]}
+    style={'position' in p && p.position ? `object-position:${p.position}` : undefined}
   />
   {tag && <span class:list={['placeholder-tag', tagPosition === 'top' && '!bottom-auto top-3 left-3']}>Placeholder photo</span>}
   <slot />

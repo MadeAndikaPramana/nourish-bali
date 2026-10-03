@@ -12,7 +12,7 @@ import TableComposer from '@/islands/TableComposer';
 import { getBranch, getBranches, getSite, menuForBranch } from '@/lib/content';
 import { BRANCH_SLUGS, type BranchSlug } from '@/lib/schema';
 import { weeklySummary } from '@/lib/hours';
-import { branchPhoto, type PhotoKey } from '@/lib/photos';
+import { branchPhoto, branchSpace, type PhotoKey } from '@/lib/photos';
 import { directionsUrl, helloMessage, instagramUrl, waLink } from '@/lib/links';
 import { formatCount } from '@/lib/format';
 import { branchJsonLd } from '@/lib/seo';
@@ -34,6 +34,26 @@ const teaser: Record<BranchSlug, { photo: PhotoKey; title: string; text: string;
   berawa: { photo: 'smoothie', title: 'Smoothies & juice', text: 'Cold-pressed juices and smoothies to go with the ricefield view.', category: 'smoothies' },
 };
 const t = teaser[slug];
+
+// "The space": what the room and the area are like. From public guides and reviews; flagged in README.
+const spaces: Record<BranchSlug, { title: string; text: string; highlights: string[] }> = {
+  uluwatu: {
+    title: 'Bright, easy and close to the breaks',
+    text: 'A light, minimal room on Jl. Labuansait with wooden tables and plenty of plants, and a small wholefoods store for the pantry.',
+    highlights: ['Wholefoods store', 'All-day breakfast', 'Pet-friendly'],
+  },
+  ungasan: {
+    title: 'Healthy brunch, bakery and pizza',
+    text: 'On Jl. Raya Uluwatu, with the bakery display, gourmet pizzas from 11am and its own wholefoods store.',
+    highlights: ['Bakery', 'Gourmet pizzas', 'Wholefoods store'],
+  },
+  berawa: {
+    title: 'Breakfast with a ricefield view',
+    text: 'In Tibubeneng among the sawah of Canggu, with brunch to stay or to go and cold-pressed juice by the bottle.',
+    highlights: ['Ricefield views', 'Brunch to go', 'Pet-friendly'],
+  },
+};
+const space = spaces[slug];
 const menuRoot = `menu-${slug}`;
 const toolbarCategories = menu.categories.map((c) => ({
   id: c.id,
@@ -52,48 +72,61 @@ const itemCount = menu.categories.reduce((n, c) => n + c.items.length, 0);
   jsonLd={[branchJsonLd(branch, Astro.site!)]}
   ogImage={`/og/${slug}.jpg`}
 >
-  <!-- Hero -->
-  <section class="relative isolate -mt-[var(--header-h)] min-h-[88svh] overflow-hidden bg-ink text-paper">
-    <Photo
-      photo={branchPhoto[slug]}
-      class="absolute inset-0 -z-10"
-      sizes="100vw"
-      loading="eager"
-      widths={[640, 960, 1280, 1600]}
-      transitionName={`branch-photo-${slug}`}
-      tag={false}
-    />
-    <div class="absolute inset-0 -z-10 bg-gradient-to-t from-ink via-ink/45 to-ink/20" aria-hidden="true"></div>
-    <div class="absolute inset-0 -z-10" style="background: linear-gradient(to top right, color-mix(in oklab, var(--accent) 55%, transparent), transparent 55%)" aria-hidden="true"></div>
-    <span class="placeholder-tag !bottom-auto !left-auto right-4 top-[calc(var(--header-h)+1rem)]">Placeholder photo</span>
+  <!-- Hero: name like the facade sign, then the photo, nothing laid over the name -->
+  <section class="container-x pt-6 lg:pt-10" aria-labelledby="branch-title">
+    <nav aria-label="Breadcrumb" class="eyebrow flex flex-wrap items-center justify-between gap-2 text-muted">
+      <span><a href="/" class="hover:text-ink">Nourish</a> <span aria-hidden="true">/</span> {branch.area}</span>
+      <span class="flex items-center gap-1.5"><Icon name="star" size={13} class="text-amber-500" /> {branch.rating.value.toFixed(1)} · {formatCount(branch.rating.count)} Google reviews</span>
+    </nav>
+    <h1 id="branch-title" class="signage mt-5 text-[clamp(2.6rem,11vw,9.5rem)] text-accent" style={`view-transition-name: branch-title-${slug}`}>
+      {branch.name}
+    </h1>
+    <div class="mt-5 grid gap-5 lg:grid-cols-[1fr_auto] lg:items-end">
+      <p class="serif max-w-2xl text-[clamp(1.6rem,3.6vw,2.6rem)]">{branch.tagline}</p>
+      <LiveStatus client:load branch={branch} variant="hero" countdown fallback={weeklySummary(branch.hours)[0].hours} className="justify-self-start ring-line lg:justify-self-end" />
+    </div>
 
-    <div class="container-x flex min-h-[88svh] flex-col justify-end pb-10 pt-[calc(var(--header-h)+2rem)] lg:pb-14">
-      <nav aria-label="Breadcrumb" class="eyebrow mb-4 text-paper/70">
-        <a href="/" class="hover:text-paper">Nourish</a> <span aria-hidden="true">/</span> <span>{branch.area}</span>
-      </nav>
-      <h1 class="display text-[clamp(3.2rem,14.6vw,13rem)] leading-[0.82]" style={`view-transition-name: branch-title-${slug}`}>
-        {branch.name}
-      </h1>
-      <p class="serif-accent mt-4 max-w-2xl text-[clamp(1.4rem,4vw,2.2rem)] leading-tight text-paper/90">{branch.tagline}</p>
+    <div class="relative mt-6 overflow-hidden rounded-[1.75rem] bg-sand">
+      <Photo
+        photo={branchPhoto[slug]}
+        class="aspect-[4/3] sm:aspect-[16/9] lg:aspect-[21/9]"
+        sizes="(min-width: 1440px) 1360px, 100vw"
+        loading="eager"
+        widths={[640, 960, 1280, 1600]}
+        transitionName={`branch-photo-${slug}`}
+        tagPosition="top"
+      />
+    </div>
 
-      <div class="mt-6 flex flex-wrap items-center gap-3">
-        <LiveStatus client:load branch={branch} variant="hero" countdown fallback={weeklySummary(branch.hours)[0].hours} />
-        <a href="#reviews-note" class="inline-flex items-center gap-1.5 rounded-full bg-ink/40 px-3 py-2 text-sm backdrop-blur">
-          <Icon name="star" size={15} class="text-amber-300" /> <strong>{branch.rating.value.toFixed(1)}</strong>
-          <span class="text-paper/70">· {formatCount(branch.rating.count)} Google reviews</span>
-        </a>
-      </div>
-
-      <div class="mt-7 hidden flex-wrap gap-3 lg:flex">
+    <div class="mt-4 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      <p class="flex items-start gap-2 text-sm text-muted"><Icon name="pin" size={16} class="mt-0.5 shrink-0" /> {branch.address}</p>
+      <div class="hidden flex-wrap gap-2 lg:flex">
         <TableComposer client:idle branch={branch} className="btn btn-wa" />
-        <a href={directionsUrl(branch.maps)} target="_blank" rel="noopener" class="btn bg-paper text-ink hover:bg-white">
+        <a href={directionsUrl(branch.maps)} target="_blank" rel="noopener" class="btn btn-ink">
           <Icon name="directions" size={16} /> Directions
         </a>
-        <a href="#menu" class="btn bg-paper/15 text-paper backdrop-blur hover:bg-paper/25">
+        <a href="#menu" class="btn btn-ghost">
           See the menu <Icon name="arrow-right" size={16} />
         </a>
       </div>
-      <p class="mt-6 flex items-start gap-2 text-sm text-paper/75"><Icon name="pin" size={16} class="mt-0.5 shrink-0" /> {branch.address}</p>
+    </div>
+  </section>
+
+  <!-- The space -->
+  <section class="container-x py-16 lg:py-24" aria-labelledby="space-title">
+    <div class="grid gap-8 lg:grid-cols-12 lg:gap-12">
+      <div class="lg:col-span-5">
+        <p class="eyebrow text-accent">The space</p>
+        <h2 id="space-title" class="serif mt-5 text-[clamp(2.2rem,5vw,4rem)]">{space.title}</h2>
+        <p class="mt-5 text-lg leading-relaxed text-muted">{space.text}</p>
+        <ul class="mt-6 flex flex-wrap gap-2">
+          {space.highlights.map((h) => <li class="rounded-full bg-accent-soft px-3 py-1.5 text-sm font-semibold text-accent">{h}</li>)}
+        </ul>
+      </div>
+      <div class="grid grid-cols-2 gap-3 sm:grid-cols-5 lg:col-span-7">
+        <Photo photo={branchSpace[slug][0]} class="sm:col-span-3 aspect-[3/4] rounded-[1.5rem]" sizes="(min-width: 1024px) 34vw, 50vw" widths={[400, 700, 1000]} />
+        <Photo photo={branchSpace[slug][1]} class="sm:col-span-2 aspect-[3/4] self-end rounded-[1.5rem]" sizes="(min-width: 1024px) 22vw, 50vw" widths={[300, 600]} />
+      </div>
     </div>
   </section>
 
@@ -125,7 +158,7 @@ const itemCount = menu.categories.reduce((n, c) => n + c.items.length, 0);
         <Photo photo={t.photo} tagPosition="top" class="absolute inset-0" imgClass="transition-transform duration-700 group-hover:scale-105" sizes="(min-width: 1024px) 25vw, 100vw" widths={[400, 700, 1000]} />
         <div class="absolute inset-0 bg-gradient-to-t from-ink/85 to-transparent" aria-hidden="true"></div>
         <div class="absolute inset-x-0 bottom-0 p-5">
-          <p class="display text-2xl">{t.title}</p>
+          <p class="serif text-[2rem] leading-none">{t.title}</p>
           <p class="mt-1 text-sm text-paper/80">{t.text}</p>
         </div>
       </a>
@@ -168,7 +201,7 @@ const itemCount = menu.categories.reduce((n, c) => n + c.items.length, 0);
           <div class="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-6">
             <div>
               <p class="eyebrow text-paper/70">Also try</p>
-              <p class="display text-4xl" style={`view-transition-name: branch-title-${o.slug}`}>{o.name}</p>
+              <p class="signage text-[clamp(1.5rem,3vw,2rem)]" style={`view-transition-name: branch-title-${o.slug}`}>{o.name}</p>
             </div>
             <span class="grid size-11 place-items-center rounded-full bg-paper text-ink transition-transform group-hover:-rotate-45">
               <Icon name="arrow-right" size={18} />

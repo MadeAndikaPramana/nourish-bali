@@ -1,0 +1,34 @@
+---
+import Photo from '@/components/Photo.astro';
+import Icon from '@/components/Icon.astro';
+import { getSite } from '@/lib/content';
+import { instagramUrl } from '@/lib/links';
+import type { PhotoKey } from '@/lib/photos';
+
+/** IG-style grid. Stock placeholders stand in for their feed (no Instagram embeds or rehosted posts). */
+const { instagram } = getSite();
+const tiles: PhotoKey[] = ['acaiBowl', 'salad', 'bagel', 'cocktails', 'gelato', 'smoothie'];
+---
+
+<section class="container-x py-20 lg:py-28" aria-labelledby="ig-title">
+  <div class="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <p class="eyebrow text-accent">On Instagram</p>
+      <h2 id="ig-title" class="signage mt-5 text-[clamp(1.6rem,4.4vw,3rem)]">@{instagram}</h2>
+    </div>
+    <a href={instagramUrl(instagram)} target="_blank" rel="noopener" class="btn btn-ink self-start sm:self-auto">
+      <Icon name="instagram" size={16} /> Follow along
+    </a>
+  </div>
+  <ul class="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+    {
+      tiles.map((t) => (
+        <li>
+          <a href={instagramUrl(instagram)} target="_blank" rel="noopener" class="group block overflow-hidden rounded-[1rem]">
+            <Photo photo={t} class="aspect-square" imgClass="transition-transform duration-700 group-hover:scale-105" sizes="(min-width: 1024px) 16vw, (min-width: 640px) 33vw, 50vw" widths={[300, 500]} tagPosition="top" />
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</section>

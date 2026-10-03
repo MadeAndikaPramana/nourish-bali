@@ -1,0 +1,41 @@
+---
+/** A slow band of "NOURISH." repeated edge to edge, like the print on their tote bags and food papers. */
+interface Props {
+  tone?: 'ink' | 'paper';
+}
+const { tone = 'paper' } = Astro.props;
+const words = Array.from({ length: 10 });
+---
+
+<div
+  class:list={[
+    'brand-band select-none overflow-hidden border-y py-3',
+    tone === 'ink' ? 'border-paper/10 bg-ink text-paper' : 'border-line bg-cream text-ink',
+  ]}
+  aria-hidden="true"
+>
+  <div class="brand-band-track flex w-max">
+    {
+      [0, 1].map(() => (
+        <div class="flex shrink-0">
+          {words.map(() => (
+            <span class="signage px-5 text-[clamp(1rem,2.2vw,1.5rem)]">NOURISH.</span>
+          ))}
+        </div>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  @media (prefers-reduced-motion: no-preference) {
+    .brand-band-track {
+      animation: band 60s linear infinite;
+    }
+  }
+  @keyframes band {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+</style>

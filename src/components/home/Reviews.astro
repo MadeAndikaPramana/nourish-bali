@@ -1,9 +1,9 @@
 ---
-import Photo from '@/components/Photo.astro';
 import Icon from '@/components/Icon.astro';
 import { getBranches, totalReviews } from '@/lib/content';
 import { formatCount } from '@/lib/format';
 
+/** Public Google numbers only. No quoted reviews (those need the reviewer's and owner's OK). */
 const branches = getBranches();
 const total = totalReviews();
 const checked = new Date(`${branches[0].rating.checked}T00:00:00Z`).toLocaleDateString('en-GB', {
@@ -14,42 +14,29 @@ const checked = new Date(`${branches[0].rating.checked}T00:00:00Z`).toLocaleDate
 });
 ---
 
-<section id="reviews" class="container-x scroll-mt-24 py-20 lg:py-28" aria-labelledby="reviews-title">
-  <div class="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-    <div class="reveal relative overflow-hidden rounded-[2rem] bg-ink p-7 text-paper sm:p-10">
-      <p class="eyebrow text-paper/60">On Google Maps</p>
-      <h2 id="reviews-title" class="mt-4">
-        <span class="display block text-[clamp(4rem,16vw,9rem)] tabular-nums" data-count={total}>{formatCount(total)}</span>
-        <span class="serif-accent mt-2 block text-[clamp(1.6rem,4vw,2.4rem)] text-paper/85">Google reviews across three cafés</span>
-      </h2>
-      <ul class="mt-8 grid gap-3 sm:grid-cols-3">
+<section id="reviews" class="container-x scroll-mt-24 py-20 lg:py-24" aria-labelledby="reviews-title">
+  <div class="grid gap-10 border-y border-line py-12 lg:grid-cols-[1fr_1.4fr] lg:items-center">
+    <h2 id="reviews-title">
+      <span class="eyebrow block text-accent">On Google Maps</span>
+      <span class="signage mt-5 block text-[clamp(3rem,9vw,6rem)] tabular-nums" data-count={total}>{formatCount(total)}</span>
+      <span class="serif mt-3 block text-[clamp(1.6rem,3vw,2.2rem)] text-ink/80">reviews across three cafés</span>
+    </h2>
+    <div>
+      <ul class="grid gap-3 sm:grid-cols-3">
         {
           branches.map((b) => (
-            <li data-branch={b.slug} class="rounded-2xl bg-paper/5 p-4 ring-1 ring-paper/10">
-              <p class="display text-lg">{b.name}</p>
-              <p class="mt-2 flex items-center gap-1.5 text-2xl font-bold">
+            <li data-branch={b.slug} class="rounded-[1.25rem] bg-cream p-5 ring-1 ring-line">
+              <p class="signage text-sm">{b.name}</p>
+              <p class="mt-4 flex items-center gap-1.5 text-3xl font-bold">
                 {b.rating.value.toFixed(1)}
-                <Icon name="star" size={18} class="text-amber-300" />
+                <Icon name="star" size={20} class="text-amber-500" />
               </p>
-              <p class="text-sm text-paper/60">{formatCount(b.rating.count)} reviews</p>
+              <p class="mt-1 text-sm text-muted">{formatCount(b.rating.count)} reviews</p>
             </li>
           ))
         }
       </ul>
-      <p class="mt-6 text-xs text-paper/50">Public rating and review counts from each Google Maps listing, checked {checked}.</p>
-    </div>
-
-    <div class="reveal flex flex-col gap-6">
-      <div class="relative min-h-[16rem] flex-1 overflow-hidden rounded-[2rem]">
-        <Photo photo="bukitCoast" class="absolute inset-0" sizes="(min-width: 1024px) 40vw, 100vw" />
-      </div>
-      <div class="rounded-[2rem] bg-accent-soft p-7">
-        <p class="eyebrow text-accent">About</p>
-        <p class="mt-3 text-lg leading-relaxed">
-          NOURISH runs three healthy, all-day cafés in Badung, Bali. Expect all-day breakfast, smoothie bowls, salads, burgers,
-          wraps and coffee, with vegan, vegetarian and gluten-free dishes marked on every menu. Pet-friendly, too.
-        </p>
-      </div>
+      <p class="mt-4 text-xs text-muted">Public rating and review counts from each Google Maps listing, checked {checked}.</p>
     </div>
   </div>
 </section>
@@ -59,16 +46,14 @@ const checked = new Date(`${branches[0].rating.checked}T00:00:00Z`).toLocaleDate
   const el = document.querySelector<HTMLElement>('[data-count]');
   if (el && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
     const target = Number(el.dataset.count);
-    const fmt = (n: number) => n.toLocaleString('en-US');
     new IntersectionObserver(
       ([e], io) => {
         if (!e.isIntersecting) return;
         io.disconnect();
         const start = performance.now();
-        const dur = 1600;
         const step = (t: number) => {
-          const k = Math.min(1, (t - start) / dur);
-          el.textContent = fmt(Math.round(target * (1 - Math.pow(1 - k, 4))));
+          const k = Math.min(1, (t - start) / 1400);
+          el.textContent = Math.round(target * (1 - Math.pow(1 - k, 4))).toLocaleString('en-US');
           if (k < 1) requestAnimationFrame(step);
         };
         requestAnimationFrame(step);

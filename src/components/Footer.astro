@@ -1,5 +1,5 @@
 ---
-import Wordmark from './Wordmark.astro';
+import FitWordmark from './FitWordmark.astro';
 import Icon from './Icon.astro';
 import { getBranches, getSite } from '@/lib/content';
 import { weeklySummary } from '@/lib/hours';
@@ -16,7 +16,7 @@ const site = getSite();
       {
         branches.map((b) => (
           <section aria-labelledby={`f-${b.slug}`} data-branch={b.slug} class="flex flex-col gap-3">
-            <h2 id={`f-${b.slug}`} class="display text-3xl">
+            <h2 id={`f-${b.slug}`} class="signage text-xl">
               <a href={`/${b.slug}`} class="transition-colors hover:text-accent-glow">
                 {b.name}
               </a>
@@ -64,7 +64,7 @@ const site = getSite();
       )
     }
   </div>
-  <div aria-hidden="true" class="pointer-events-none -mb-[0.12em] select-none px-2 text-center text-[17vw] leading-none text-paper/[0.07]">
-    <Wordmark />
+  <div class="container-x pb-8 text-paper/[0.09]" aria-hidden="true">
+    <FitWordmark accentDot={false} />
   </div>
 </footer>

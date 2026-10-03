@@ -16,8 +16,8 @@ prices current themselves.
 
 | Page | What it does |
 |---|---|
-| `/` | Hero with a Bali-time colour mood (WebGL mesh gradient, CSS fallback), live "Open now / Closing soon / Closed" board for all three cafés, signature dishes, branch cards, an illustrated South Bali map, public Google review counts, Instagram CTA |
-| `/uluwatu` `/ungasan` `/berawa` | Branch hero, live status with countdown, weekly hours (today highlighted, special days), click-to-load Google Map, WhatsApp "Ask for a table" composer, mobile action dock, and the full menu as HTML |
+| `/` | Story first, menu last: fit-to-width wordmark and café photo, live "Open now / Closing soon / Closed" bar for all three cafés, an intro, one story per café (photos, highlights, hours, WhatsApp, Directions), "A day at Nourish" (real dishes per time of day, the current Bali time highlighted), take-home (wholefoods store, bottled juice, bakery), dietary counts from the menus, Google review counts, an illustrated South Bali map, an Instagram grid, and a link to the HTML menus |
+| `/uluwatu` `/ungasan` `/berawa` | Branch hero, "The space" (room photos and highlights), live status with countdown, weekly hours (today highlighted, special days), click-to-load Google Map, WhatsApp "Ask for a table" composer, mobile action dock, and the full menu as HTML with one photo per main category |
 | `/menu` | Both menus with a switch: Uluwatu & Ungasan share one, Berawa has its own |
 | `/admin` | One-password staff admin: hours, special days, temporary closure, menu items, prices, sold out, dietary marks, announcement bar, café info. One **Save** = one GitHub commit = one Vercel deploy |
 | ⌘K / "Find a dish" | Searches every dish across the cafés and shows which branch has it ("pizza" → Uluwatu, Ungasan) |
@@ -35,8 +35,7 @@ Copy is plain English. All dish names, descriptions and dietary marks come from 
 - **Astro 7** (static output, prerendered pages) + **React 19 islands** + **Tailwind CSS v4** + `@astrojs/vercel`.
 - Only `/api/admin/*` runs on demand (one Vercel function). Everything else is static HTML.
 - Content is JSON in `src/content/`, validated at build time and in the admin by one zod schema (`src/lib/schema.ts`).
-- Motion (`motion`), smooth scroll on desktop (`lenis`), WebGL hero (`@paper-design/shaders-react`, Apache-2.0),
-  cross-document View Transitions (branch photo morphs from card to page), ⌘K search (`cmdk`), bottom sheet (`vaul`),
+- Motion (`motion`), smooth scroll on desktop (`lenis`), cross-document View Transitions (branch photo morphs from card to page), ⌘K search (`cmdk`), bottom sheet (`vaul`),
   drag-and-drop in the admin (`@dnd-kit`).
 - Fonts are self-hosted (Archivo, Plus Jakarta Sans, Instrument Serif; all OFL).
 
@@ -151,13 +150,28 @@ Nothing below was invented. Each item is either unverified, inferred from a sour
       accepted". Confirm they're current.
 
 **Brand and copy**
-- [ ] **Brand look** is inferred from the menu PDFs (black bold sans "NOURISH." with an "N." mark), not from Instagram.
-      Typed wordmark, no logo file used. Ask for the logo, brand colours and fonts.
+- [ ] **Brand look** is inferred from the menu PDFs and from screenshots of @nourishbali's Instagram grid: wide,
+      letter-spaced "NOURISH." signage, white walls, concrete, teak, rattan, olive aprons, kraft cups, serif overlays.
+      The palette (paper, concrete, teak, kraft, olive; muted slate/terracotta/green per café) is our reading of that,
+      not their brand guide. Typed wordmark, no logo file used. Ask for the logo, brand colours and fonts.
+- [ ] **"A place to start, stay and slow down"** (home hero) is taken from one of their Instagram posts. Confirm it's
+      a line they're happy to use as the main tagline.
+- [ ] **Wholefoods store at Uluwatu and Ungasan**: from the Ungasan Maps name ("NOURISH CAFE WHOLEFOODS PIZZERIA") and
+      third-party guides; Instagram shows a grocery shelf but doesn't say which café. Used on the home page (story
+      highlights, "Take some home") and both Bukit pages. Confirm which cafés have one.
+- [ ] **"Organic, locally sourced ingredients"** (home intro) comes from public guides, not from NOURISH. Confirm or
+      remove.
+- [ ] **Café highlights and "The space" copy** (e.g. "Ricefield views", "Brunch to go", "Healthy brunch", "Gourmet
+      pizzas", "wooden tables and plenty of plants") are from their Instagram overlays, Google listing names and
+      guides. Approve or replace per café.
+- [ ] **"Bottled cold-pressed juice"**: the bottles are seen on Instagram and the juice names come from the menus;
+      confirm they're sold bottled to take away at all three cafés.
 - [ ] Taglines and short descriptions were written for the demo ("Surf, cliffs and a long breakfast on the Bukit",
-      "Breakfast with a ricefield view in Canggu", the hero line and the About paragraph). Approve or replace.
+      "Breakfast with a ricefield view in Canggu", the intro paragraph, the "A day at Nourish" lines). Approve or
+      replace.
 - [ ] **Google ratings and review counts** (4.5 / 3,740; 4.5 / 3,769; 4.9 / 2,297) were checked on 2 Oct 2026.
       Refresh in the admin before go-live. No reviews are quoted on the site.
-- [ ] **Photos**: all 15 are labelled Unsplash placeholders (see `CREDITS.md`). Replace with the café's own photos.
+- [ ] **Photos**: all 24 are labelled Unsplash placeholders (see `CREDITS.md`). Replace with the café's own photos.
 
 ## Go-live checklist
 
@@ -173,9 +187,11 @@ Nothing below was invented. Each item is either unverified, inferred from a sour
 ## Quality checks done
 
 - `npm run build` passes (`astro check`: 0 errors). 34 unit tests pass.
-- Looked at every page in a real browser at **390px** and **1440px** (dev and production build): no horizontal
-  overflow, no console errors.
-- `npm run check:links -- --live`: 237 links on 7 pages. All three WhatsApp numbers match the linktree
+- Looked at every page in a real browser at **390px** and **1440px** (production build): no horizontal overflow, no
+  console errors, and no clipped content. `scripts/screenshots.mjs` now fails if visible text is cut off by an
+  `overflow: hidden` box or an image hangs off-screen (scrollable chip rows and decorative, `aria-hidden` parts are
+  allowed).
+- `npm run check:links -- --live`: 243 links on 7 pages. All three WhatsApp numbers match the linktree
   (`wa.me/6281337772517`, `wa.me/6287759743987`, `wa.me/6282146452189`), each pre-filled message names the right café,
   each branch page links its own WhatsApp and Directions, internal anchors resolve, Instagram/Facebook point at
   @nourishbali.

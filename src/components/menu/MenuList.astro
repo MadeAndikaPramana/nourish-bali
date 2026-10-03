@@ -3,6 +3,8 @@ import type { Category, Menu, MenuItem } from '@/lib/schema';
 import { TAG_LABELS, TAGS } from '@/lib/schema';
 import { formatAmount, formatPrices } from '@/lib/format';
 import { servingLabel } from '@/lib/hours';
+import { categoryPhoto } from '@/lib/photos';
+import Photo from '@/components/Photo.astro';
 
 /**
  * The menu as plain, crawlable HTML. Filtering/search is layered on top by the MenuToolbar island,
@@ -59,10 +61,25 @@ const priceTitle = menu.samplePrices ? 'Sample price, not the café’s real pri
         aria-labelledby={`${rootId}-${c.id}-h`}
       >
         <header class="mb-6 flex flex-wrap items-end justify-between gap-x-6 gap-y-2">
-          <h3 id={`${rootId}-${c.id}-h`} class="display text-[clamp(1.9rem,5.5vw,3rem)]">
-            {c.name}
-          </h3>
-          <div class="flex flex-wrap items-center gap-2 text-xs">
+          {categoryPhoto[c.id] ? (
+            <Photo
+              photo={categoryPhoto[c.id]!}
+              class="aspect-[16/9] w-full rounded-[1.25rem] sm:aspect-[21/9] lg:max-h-[21rem]"
+              sizes="(min-width: 1280px) 1200px, 100vw"
+              widths={[480, 800, 1200]}
+              tagPosition="top"
+            >
+              <div class="absolute inset-0 bg-gradient-to-t from-ink/75 via-ink/15 to-transparent" aria-hidden="true" />
+              <h3 id={`${rootId}-${c.id}-h`} class="serif absolute inset-x-0 bottom-0 p-5 text-[clamp(2.2rem,6vw,3.6rem)] leading-none text-paper sm:p-7">
+                {c.name}
+              </h3>
+            </Photo>
+          ) : (
+            <h3 id={`${rootId}-${c.id}-h`} class="serif text-[clamp(2.2rem,6vw,3.6rem)] leading-none">
+              {c.name}
+            </h3>
+          )}
+          <div class="flex flex-wrap items-center gap-2 text-xs empty:hidden">
             {servingLabel(c) && (
               <span data-serving-chip class="serving-chip inline-flex items-center gap-1.5 rounded-full bg-ink/5 px-2.5 py-1 font-semibold">
                 <span class="size-1.5 rounded-full bg-current opacity-50" aria-hidden="true" />

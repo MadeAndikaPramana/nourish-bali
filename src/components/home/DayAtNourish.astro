@@ -1,0 +1,128 @@
+---
+import Photo from '@/components/Photo.astro';
+import { getMenus } from '@/lib/content';
+import { formatTime } from '@/lib/hours';
+import type { PhotoKey } from '@/lib/photos';
+
+/**
+ * A day told through the real menus: dish names come from the menu JSON, and the morning/midday times
+ * from the serving windows printed on the Uluwatu & Ungasan menu.
+ */
+const menus = getMenus();
+const all = Object.values(menus).flatMap((m) => m.categories.flatMap((c) => c.items));
+const names = (ids: string[]) => ids.map((id) => all.find((i) => i.id === id)?.name).filter((n): n is string => Boolean(n));
+const cat = (id: string) => menus.bukit.categories.find((c) => c.id === id);
+const breakfastFrom = cat('all-day-breakfast')?.servedFrom ?? '07:00';
+const lunchFrom = cat('bigger-stuff')?.servedFrom ?? '11:00';
+
+const slots: { key: string; from: number; to: number; time: string; title: string; text: string; photo: PhotoKey; dishes: string[] }[] = [
+  {
+    key: 'morning',
+    from: 7 * 60,
+    to: 11 * 60,
+    time: `From ${formatTime(breakfastFrom)}`,
+    title: 'Breakfast & bowls',
+    text: 'Eggs every way, smashed avo and açaí bowls, with the first flat white.',
+    photo: 'avoToast',
+    dishes: names(['smashed-avo-stack', 'fill-me-up-protein', 'baked-skillet-eggs']),
+  },
+  {
+    key: 'midday',
+    from: 11 * 60,
+    to: 15 * 60,
+    time: `From ${formatTime(lunchFrom)}`,
+    title: 'Long lunch',
+    text: 'Poke, salad bowls, burgers and wraps, and on the Bukit, pizza.',
+    photo: 'pokeBowl',
+    dishes: names(['poke-bowl', 'vitality-bowl', 'margherita']),
+  },
+  {
+    key: 'afternoon',
+    from: 15 * 60,
+    to: 18 * 60,
+    time: 'Afternoon',
+    title: 'Cake & coffee',
+    text: 'Something from the bakery or the cake display, and a cold-pressed juice for later.',
+    photo: 'carrotCake',
+    dishes: names(['carrot-cake', 'cinnamon-scroll', 'brownie-bliss-bomb']),
+  },
+  {
+    key: 'evening',
+    from: 18 * 60,
+    to: 23 * 60,
+    time: 'Sundown',
+    title: 'Cocktails & dinner',
+    text: 'Signature cocktails, natural wine and the bigger plates.',
+    photo: 'eveningLamps',
+    dishes: names(['limo-breeze-spritz', 'island-mango-colada', 'fire-in-the-hull']),
+  },
+];
+---
+
+<section class="container-x py-20 lg:py-28" aria-labelledby="day-title" data-day>
+  <div class="mb-12 grid gap-4 lg:grid-cols-2 lg:items-end">
+    <div>
+      <p class="eyebrow text-accent">A day at Nourish</p>
+      <h2 id="day-title" class="serif mt-5 text-[clamp(2.4rem,6vw,5rem)]">Start, stay, slow down</h2>
+    </div>
+    <p class="max-w-md text-muted lg:justify-self-end">
+      Dish names straight from the menus. <span data-now-label class="font-semibold text-ink"></span>
+    </p>
+  </div>
+
+  <ol class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    {
+      slots.map((s) => (
+        <li data-slot={s.key} data-from={s.from} data-to={s.to} class="day-slot flex flex-col overflow-hidden rounded-[1.5rem] bg-cream ring-1 ring-line transition-shadow">
+          <Photo photo={s.photo} class="aspect-[4/3]" sizes="(min-width: 1024px) 24vw, (min-width: 640px) 48vw, 100vw" widths={[400, 700]} tagPosition="top" />
+          <div class="flex flex-1 flex-col p-5">
+            <p class="eyebrow flex items-center justify-between text-muted">
+              <span>{s.time}</span>
+              <span data-now-badge hidden class="rounded-full bg-accent px-2 py-0.5 text-[0.62rem] tracking-[0.12em] text-white">
+                Now
+              </span>
+            </p>
+            <h3 class="serif mt-3 text-[1.9rem]">{s.title}</h3>
+            <p class="mt-2 text-sm text-muted">{s.text}</p>
+            <ul class="mt-auto grid gap-1.5 border-t border-line pt-4 text-sm font-semibold">
+              {s.dishes.map((d) => (
+                <li>{d}</li>
+              ))}
+            </ul>
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+  <div class="mt-8 flex justify-center">
+    <a href="/menu" class="btn btn-ink">See every dish</a>
+  </div>
+</section>
+
+<style>
+  .day-slot[data-now] {
+    box-shadow:
+      0 0 0 2px var(--accent),
+      0 20px 40px -24px rgb(21 21 21 / 0.4);
+  }
+</style>
+
+<script>
+  // Highlight the part of the day it is right now in Bali (WITA, UTC+8).
+  const now = new Date(Date.now() + 8 * 3600e3);
+  const m = now.getUTCHours() * 60 + now.getUTCMinutes();
+  const labels: Record<string, string> = {
+    morning: 'Right now in Bali: breakfast time.',
+    midday: 'Right now in Bali: lunch time.',
+    afternoon: 'Right now in Bali: cake and coffee time.',
+    evening: 'Right now in Bali: sundown.',
+  };
+  document.querySelectorAll<HTMLElement>('[data-slot]').forEach((el) => {
+    if (m >= Number(el.dataset.from) && m < Number(el.dataset.to)) {
+      el.dataset.now = '';
+      el.querySelector<HTMLElement>('[data-now-badge]')!.hidden = false;
+      const label = document.querySelector('[data-now-label]');
+      if (label) label.textContent = labels[el.dataset.slot!] ?? '';
+    }
+  });
+</script>

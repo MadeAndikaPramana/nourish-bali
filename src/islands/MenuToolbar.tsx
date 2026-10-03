@@ -33,6 +33,9 @@ export default function MenuToolbar({ rootId, categories, syncUrl = true }: Prop
   // Serving times depend on the visitor's clock, so only compute them after hydration.
   const [mounted, setMounted] = useState(false);
   const chipsRef = useRef<HTMLDivElement>(null);
+  // Whether chips are hidden past either edge of the row (drives the edge fades and arrow buttons).
+  // Server HTML assumes the usual case (more chips to the right) until hydration measures it.
+  const [edges, setEdges] = useState({ start: false, end: true });
   const root = useRef<HTMLElement | null>(null);
 
   const sections = useMemo(() => [...new Set(categories.map((c) => c.section))], [categories]);
@@ -128,6 +131,26 @@ export default function MenuToolbar({ rootId, categories, syncUrl = true }: Prop
       window.removeEventListener('scroll', onScroll);
     };
   }, [categories]);
+
+  // Track overflow on both edges so a half-visible chip reads as "scroll for more", not as cut off.
+  useEffect(() => {
+    const bar = chipsRef.current;
+    if (!bar) return;
+    const update = () => {
+      const max = bar.scrollWidth - bar.clientWidth;
+      setEdges({ start: bar.scrollLeft > 4, end: bar.scrollLeft < max - 4 });
+    };
+    update();
+    bar.addEventListener('scroll', update, { passive: true });
+    const ro = new ResizeObserver(update);
+    ro.observe(bar);
+    return () => {
+      bar.removeEventListener('scroll', update);
+      ro.disconnect();
+    };
+  }, [visibleCats]);
+
+  const nudge = (dir: 1 | -1) => chipsRef.current?.scrollBy({ left: dir * chipsRef.current.clientWidth * 0.7, behavior: 'smooth' });
 
   // Keep the active chip in view.
   useEffect(() => {
@@ -257,33 +280,57 @@ export default function MenuToolbar({ rootId, categories, syncUrl = true }: Prop
 
       {/* Category chips */}
       <LayoutGroup id={`${rootId}-cats`}>
-        <div ref={chipsRef} className="scrollbar-none -mx-1 mt-3 flex gap-1.5 overflow-x-auto px-1" aria-label="Menu categories">
-          {categories
-            .filter((c) => visibleCats.has(c.id))
-            .map((c) => {
-              const isActive = c.id === active;
-              const serving = mounted ? servingState(c) : 'always';
-              return (
-                <button
-                  key={c.id}
-                  type="button"
-                  data-chip={c.id}
-                  onClick={() => goTo(c.id)}
-                  aria-current={isActive ? 'true' : undefined}
-                  className="relative shrink-0 rounded-full px-3.5 py-2 text-sm font-semibold"
-                >
-                  {isActive && (
-                    <motion.span layoutId={`${rootId}-cat-pill`} className="absolute inset-0 rounded-full bg-accent" transition={{ type: 'spring', stiffness: 420, damping: 34 }} />
-                  )}
-                  <span className={`relative flex items-center gap-1.5 ${isActive ? 'text-white' : ''}`}>
-                    {c.name}
-                    {(serving === 'later' || serving === 'ended') && (
-                      <span className="size-1.5 rounded-full bg-amber-500" title="Not being served right now" aria-label="not served right now" />
+        <div className="relative mt-3">
+          <div
+            ref={chipsRef}
+            className="chip-row scrollbar-none -mx-1 flex gap-1.5 overflow-x-auto px-1"
+            data-fade-start={edges.start || undefined}
+            data-fade-end={edges.end || undefined}
+            aria-label="Menu categories"
+          >
+            {categories
+              .filter((c) => visibleCats.has(c.id))
+              .map((c) => {
+                const isActive = c.id === active;
+                const serving = mounted ? servingState(c) : 'always';
+                return (
+                  <button
+                    key={c.id}
+                    type="button"
+                    data-chip={c.id}
+                    onClick={() => goTo(c.id)}
+                    aria-current={isActive ? 'true' : undefined}
+                    className="relative shrink-0 rounded-full px-3.5 py-2 text-sm font-semibold"
+                  >
+                    {isActive && (
+                      <motion.span layoutId={`${rootId}-cat-pill`} className="absolute inset-0 rounded-full bg-accent" transition={{ type: 'spring', stiffness: 420, damping: 34 }} />
                     )}
-                  </span>
-                </button>
-              );
-            })}
+                    <span className={`relative flex items-center gap-1.5 ${isActive ? 'text-white' : ''}`}>
+                      {c.name}
+                      {(serving === 'later' || serving === 'ended') && (
+                        <span className="size-1.5 rounded-full bg-amber-500" title="Not being served right now" aria-label="not served right now" />
+                      )}
+                    </span>
+                  </button>
+                );
+              })}
+          </div>
+          {(['start', 'end'] as const).map((side) => (
+            <button
+              key={side}
+              type="button"
+              onClick={() => nudge(side === 'start' ? -1 : 1)}
+              aria-label={side === 'start' ? 'Scroll categories left' : 'Scroll categories right'}
+              tabIndex={-1}
+              className={`absolute top-1/2 hidden size-8 -translate-y-1/2 place-items-center rounded-full bg-cream shadow-md ring-1 ring-line transition-opacity lg:grid ${
+                side === 'start' ? '-left-2' : '-right-2'
+              } ${edges[side] ? 'opacity-100' : 'pointer-events-none opacity-0'}`}
+            >
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d={side === 'start' ? 'M15 6l-6 6 6 6' : 'M9 6l6 6-6 6'} />
+              </svg>
+            </button>
+          ))}
         </div>
       </LayoutGroup>
     </div>

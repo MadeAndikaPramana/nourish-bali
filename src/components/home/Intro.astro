@@ -1,0 +1,46 @@
+---
+import Photo from '@/components/Photo.astro';
+import { getBranches, totalReviews } from '@/lib/content';
+import { formatCount } from '@/lib/format';
+
+const branches = getBranches();
+const facts = [
+  { value: String(branches.length), label: 'cafés, on the Bukit and in Canggu' },
+  { value: formatCount(totalReviews()), label: 'Google reviews across the three' },
+  { value: 'V · VG · GF', label: 'marked on every menu' },
+];
+---
+
+<section class="container-x py-20 lg:py-28" aria-labelledby="intro-title">
+  <div class="grid gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:gap-16">
+    <div>
+      <p class="eyebrow text-accent">About NOURISH</p>
+      <h2 id="intro-title" class="serif mt-5 text-[clamp(2.4rem,6vw,5rem)]">
+        Healthy, all-day food in three easy-going cafés. Breakfast at seven, a long lunch, a cocktail at sundown.
+      </h2>
+      <p class="mt-6 max-w-2xl text-lg leading-relaxed text-muted">
+        NOURISH cooks with organic, locally sourced ingredients and keeps the menu honest: bowls, eggs, salads, burgers,
+        pizza on the Bukit, cakes from the bakery and cold-pressed juice. Bright rooms, wooden tables, plenty of plants, and
+        pets are welcome.
+      </p>
+      <dl class="mt-10 grid gap-6 border-t border-line pt-8 sm:grid-cols-3">
+        {
+          facts.map((f) => (
+            <div>
+              <dt class="sr-only">{f.label}</dt>
+              <dd>
+                <span class="signage block text-[1.65rem]">{f.value}</span>
+                <span class="mt-2 block text-sm text-muted">{f.label}</span>
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+    <div class="grid grid-cols-2 gap-3 self-end">
+      <Photo photo="pastriesTable" class="col-span-2 aspect-[4/3] rounded-[1.5rem]" sizes="(min-width: 1024px) 34vw, 100vw" widths={[480, 800, 1100]} />
+      <Photo photo="latte" class="aspect-square rounded-[1.5rem]" sizes="(min-width: 1024px) 17vw, 50vw" widths={[320, 600]} />
+      <Photo photo="spaceRattan" class="aspect-square rounded-[1.5rem]" sizes="(min-width: 1024px) 17vw, 50vw" widths={[320, 600]} />
+    </div>
+  </div>
+</section>

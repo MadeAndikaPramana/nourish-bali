@@ -1,0 +1,38 @@
+---
+import Icon from '@/components/Icon.astro';
+import { getBranches, getMenus } from '@/lib/content';
+import { MENU_IDS } from '@/lib/constants';
+
+const menus = getMenus();
+const branches = getBranches();
+const options = MENU_IDS.map((id) => ({
+  id,
+  label: branches
+    .filter((b) => b.menu === id)
+    .map((b) => b.name)
+    .join(' & '),
+  count: menus[id].categories.reduce((n, c) => n + c.items.length, 0),
+}));
+---
+
+<section class="container-x pb-6" aria-labelledby="menu-cta-title">
+  <div class="grid gap-6 overflow-hidden rounded-[1.75rem] bg-ink p-7 text-paper sm:p-10 lg:grid-cols-[1fr_auto] lg:items-center">
+    <div>
+      <p class="eyebrow text-paper/60">The menus</p>
+      <h2 id="menu-cta-title" class="serif mt-4 text-[clamp(2rem,4.5vw,3.5rem)]">The whole menu, without the PDF.</h2>
+      <p class="mt-3 max-w-xl text-paper/70">Every dish with its dietary marks, searchable and filterable on your phone.</p>
+    </div>
+    <div class="flex flex-col gap-2 sm:flex-row lg:flex-col">
+      {
+        options.map((o) => (
+          <a href={`/menu?menu=${o.id}`} class="btn justify-between bg-paper text-ink hover:bg-white">
+            <span>{o.label}</span>
+            <span class="flex items-center gap-2 text-sm font-semibold text-muted">
+              {o.count} items <Icon name="arrow-right" size={15} />
+            </span>
+          </a>
+        ))
+      }
+    </div>
+  </div>
+</section>
