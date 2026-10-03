@@ -1,0 +1,80 @@
+---
+import type { Branch } from '@/lib/schema';
+import { WEEKDAYS } from '@/lib/schema';
+import { WEEKDAY_NAMES, formatRange } from '@/lib/hours';
+import Icon from '@/components/Icon.astro';
+
+interface Props {
+  branch: Branch;
+}
+const { branch } = Astro.props;
+const special = [...branch.specialDays].sort((a, b) => a.date.localeCompare(b.date));
+const fmtDate = (iso: string) =>
+  new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
+---
+
+<div class="hours-card rounded-[1.75rem] bg-cream p-6 ring-1 ring-line" data-hours>
+  <h2 class="eyebrow flex items-center gap-2 text-muted"><Icon name="clock" size={15} /> Opening hours</h2>
+  <table class="mt-4 w-full text-[0.95rem]">
+    <caption class="sr-only">Weekly opening hours in Bali time (WITA)</caption>
+    <tbody>
+      {
+        WEEKDAYS.map((d) => (
+          <tr data-day={d} class="border-b border-dashed border-line last:border-0">
+            <th scope="row" class="py-2 text-left font-semibold">
+              {WEEKDAY_NAMES[d]}
+              <span data-today-badge hidden class="ml-2 rounded-full bg-accent px-2 py-0.5 text-[0.65rem] font-bold uppercase text-white">
+                Today
+              </span>
+            </th>
+            <td class="py-2 text-right tabular-nums">{branch.hours[d].length ? branch.hours[d].map(formatRange).join(', ') : 'Closed'}</td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+
+  {
+    special.length > 0 && (
+      <div class="mt-5">
+        <h3 class="eyebrow text-muted">Special days</h3>
+        <ul class="mt-2 grid gap-1.5 text-sm">
+          {special.map((s) => (
+            <li data-special-date={s.date} class="flex justify-between gap-3 rounded-xl bg-accent-soft/60 px-3 py-2">
+              <span>
+                <strong>{s.label}</strong> · {fmtDate(s.date)}
+              </span>
+              <span>{s.hours.length ? s.hours.map(formatRange).join(', ') : 'Closed'}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
+
+  <p class="mt-5 flex gap-2 text-xs text-muted">
+    <Icon name="info" size={14} class="mt-0.5 shrink-0" />
+    {
+      branch.hoursConfirmed
+        ? 'Bali time (WITA). Hours can change on holidays, so message the café if in doubt.'
+        : 'Bali time (WITA). Hours are still being confirmed with the café, and sources differ.'
+    }
+  </p>
+</div>
+
+<script>
+  // Prerendered page: mark today and hide past special days using the Bali date.
+  const now = new Date(Date.now() + 8 * 3600e3);
+  const today = now.toISOString().slice(0, 10);
+  const day = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'][now.getUTCDay()];
+  document.querySelectorAll<HTMLElement>('[data-hours]').forEach((card) => {
+    const row = card.querySelector<HTMLElement>(`[data-day="${day}"]`);
+    if (row) {
+      row.classList.add('font-bold');
+      row.querySelector<HTMLElement>('[data-today-badge]')!.hidden = false;
+    }
+    card.querySelectorAll<HTMLElement>('[data-special-date]').forEach((li) => {
+      if ((li.dataset.specialDate ?? '') < today) li.hidden = true;
+    });
+  });
+</script>

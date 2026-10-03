@@ -1,0 +1,64 @@
+---
+import Photo from '@/components/Photo.astro';
+import { getMenus } from '@/lib/content';
+import type { PhotoKey } from '@/lib/photos';
+
+/** Things to take away: the wholefoods store (per public guides, to confirm), bottled juice and the bakery. */
+const menus = getMenus();
+const cat = (id: string) => menus.bukit.categories.find((c) => c.id === id)?.items.map((i) => i.name) ?? [];
+const juices = cat('juices').slice(0, 4);
+const bakery = cat('bakery').slice(0, 4);
+
+const panels: { photo: PhotoKey; eyebrow: string; title: string; text: string; list?: string[] }[] = [
+  {
+    photo: 'pantry',
+    eyebrow: 'Uluwatu & Ungasan',
+    title: 'The wholefoods store',
+    text: 'Both Bukit cafés keep a small store of organic pantry goods, so breakfast can come home with you.',
+  },
+  {
+    photo: 'juiceBottles',
+    eyebrow: 'On every menu',
+    title: 'Cold-pressed, bottled',
+    text: 'Cold-pressed juices in bottles, ready to grab on the way to the beach.',
+    list: juices,
+  },
+  {
+    photo: 'croissants',
+    eyebrow: 'From the bakery',
+    title: 'Pastries & cakes',
+    text: 'Croissants, scrolls, banana bread and more cakes in the display.',
+    list: bakery,
+  },
+];
+---
+
+<section class="roster py-20 lg:py-28" aria-labelledby="take-title">
+  <div class="container-x">
+    <div class="mb-12 max-w-2xl">
+      <p class="eyebrow text-accent">Take some home</p>
+      <h2 id="take-title" class="serif mt-5 text-[clamp(2.4rem,6vw,5rem)]">More than a café</h2>
+    </div>
+    <div class="grid gap-4 lg:grid-cols-3">
+      {
+        panels.map((p) => (
+          <article class="flex flex-col overflow-hidden rounded-[1.5rem] bg-cream ring-1 ring-line">
+            <Photo photo={p.photo} class="aspect-[4/3]" sizes="(min-width: 1024px) 32vw, 100vw" widths={[400, 700, 1000]} tagPosition="top" />
+            <div class="flex flex-1 flex-col p-6">
+              <p class="eyebrow text-muted">{p.eyebrow}</p>
+              <h3 class="serif mt-3 text-[2rem]">{p.title}</h3>
+              <p class="mt-2 text-muted">{p.text}</p>
+              {p.list && (
+                <ul class="mt-auto flex flex-wrap gap-1.5 pt-5">
+                  {p.list.map((n) => (
+                    <li class="rounded-full bg-paper px-3 py-1 text-sm ring-1 ring-line">{n}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>

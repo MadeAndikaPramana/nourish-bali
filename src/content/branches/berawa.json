@@ -1,0 +1,69 @@
+{
+  "slug": "berawa",
+  "name": "Berawa",
+  "mapsName": "NOURISH CAFE BERAWA",
+  "tagline": "Breakfast with a ricefield view in Canggu.",
+  "area": "Tibubeneng, Canggu",
+  "address": "Jl. Subak Sari, Tibubeneng, Kec. Kuta Utara, Kabupaten Badung, Bali 80361",
+  "whatsapp": "+62 821-4645-2189",
+  "maps": {
+    "query": "NOURISH CAFE BERAWA"
+  },
+  "rating": {
+    "value": 4.9,
+    "count": 2297,
+    "checked": "2026-10-02"
+  },
+  "hours": {
+    "mon": [
+      {
+        "open": "06:00",
+        "close": "21:00"
+      }
+    ],
+    "tue": [
+      {
+        "open": "06:00",
+        "close": "21:00"
+      }
+    ],
+    "wed": [
+      {
+        "open": "06:00",
+        "close": "21:00"
+      }
+    ],
+    "thu": [
+      {
+        "open": "06:00",
+        "close": "21:00"
+      }
+    ],
+    "fri": [
+      {
+        "open": "06:00",
+        "close": "21:00"
+      }
+    ],
+    "sat": [
+      {
+        "open": "06:00",
+        "close": "21:00"
+      }
+    ],
+    "sun": [
+      {
+        "open": "06:00",
+        "close": "21:00"
+      }
+    ]
+  },
+  "hoursConfirmed": false,
+  "specialDays": [],
+  "temporarilyClosed": {
+    "active": false,
+    "message": ""
+  },
+  "menu": "berawa",
+  "order": 3
+}

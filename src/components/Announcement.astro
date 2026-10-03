@@ -1,0 +1,40 @@
+---
+import { getSite } from '@/lib/content';
+
+const { announcement } = getSite();
+const show = announcement.active && announcement.text.trim().length > 0;
+---
+
+{
+  show && (
+    <div
+      id="announcement"
+      class="bg-ink px-4 py-2 text-center text-sm text-paper"
+      data-start={announcement.start}
+      data-end={announcement.end}
+    >
+      {announcement.link ? (
+        <a href={announcement.link} class="underline decoration-paper/40 underline-offset-4 hover:decoration-paper">
+          {announcement.text}
+        </a>
+      ) : (
+        announcement.text
+      )}
+    </div>
+  )
+}
+
+{
+  show && (announcement.start || announcement.end) && (
+    <script is:inline>
+      // Hide outside the scheduled dates (Bali date), since the page is prerendered.
+      (function () {
+        var el = document.getElementById('announcement');
+        if (!el) return;
+        var today = new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10);
+        var s = el.dataset.start, e = el.dataset.end;
+        if ((s && today < s) || (e && today > e)) el.hidden = true;
+      })();
+    </script>
+  )
+}

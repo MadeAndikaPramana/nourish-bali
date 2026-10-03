@@ -1,0 +1,80 @@
+---
+import Base from '@/layouts/Base.astro';
+import MenuList from '@/components/menu/MenuList.astro';
+import MenuToolbar from '@/islands/MenuToolbar';
+import { getBranches, getMenus } from '@/lib/content';
+import { MENU_IDS } from '@/lib/schema';
+
+const menus = getMenus();
+const branches = getBranches();
+const names = (id: string) =>
+  branches
+    .filter((b) => b.menu === id)
+    .map((b) => b.name)
+    .join(' & ');
+const panels = MENU_IDS.map((id) => ({
+  id,
+  label: names(id),
+  menu: menus[id],
+  categories: menus[id].categories.map((c) => ({ id: c.id, name: c.name, section: c.section, servedFrom: c.servedFrom, servedUntil: c.servedUntil })),
+}));
+---
+
+<Base title="Menu" description="The full NOURISH menus as a page: Uluwatu & Ungasan share one menu, Berawa has its own. Vegan, vegetarian and gluten-free marked.">
+  <section class="container-x pb-10 pt-10 lg:pt-16">
+    <p class="eyebrow text-accent">Two menus, three cafés</p>
+    <h1 class="display mt-3 text-[clamp(3.5rem,14vw,9rem)]">The menu</h1>
+    <p class="mt-4 max-w-xl text-muted">
+      Uluwatu and Ungasan share one menu (with the pizzas and the bakery). Berawa has its own. Pick one:
+    </p>
+
+    <div class="menu-switch relative mt-6 inline-grid grid-cols-2 rounded-full bg-ink/5 p-1" role="tablist" aria-label="Choose a menu">
+      <span class="menu-switch-pill absolute inset-y-1 left-1 w-[calc(50%-0.25rem)] rounded-full bg-ink transition-transform duration-500 ease-[var(--ease-out-expo)]" aria-hidden="true"></span>
+      {
+        panels.map((p, i) => (
+          <button
+            type="button"
+            role="tab"
+            id={`tab-${p.id}`}
+            aria-controls={`panel-${p.id}`}
+            aria-selected={i === 0 ? 'true' : 'false'}
+            data-menu-tab={p.id}
+            class="relative z-10 rounded-full px-4 py-2.5 text-sm font-bold transition-colors aria-selected:text-paper sm:px-6"
+          >
+            {p.label}
+          </button>
+        ))
+      }
+    </div>
+  </section>
+
+  {
+    panels.map((p, i) => (
+      <section id={`panel-${p.id}`} role="tabpanel" aria-labelledby={`tab-${p.id}`} data-menu-panel={p.id} hidden={i !== 0} class="container-x">
+        <MenuToolbar client:visible rootId={`menu-${p.id}`} categories={p.categories} />
+        <MenuList menu={p.menu} rootId={`menu-${p.id}`} anchorPrefix={`${p.id}-item`} />
+      </section>
+    ))
+  }
+</Base>
+
+<script>
+  const tabs = [...document.querySelectorAll<HTMLButtonElement>('[data-menu-tab]')];
+  const pill = document.querySelector<HTMLElement>('.menu-switch-pill');
+  const show = (id: string, push = false) => {
+    tabs.forEach((t, i) => {
+      const on = t.dataset.menuTab === id;
+      t.setAttribute('aria-selected', String(on));
+      if (on && pill) pill.style.transform = `translateX(${i * 100}%)`;
+    });
+    document.querySelectorAll<HTMLElement>('[data-menu-panel]').forEach((p) => (p.hidden = p.dataset.menuPanel !== id));
+    if (push) {
+      const url = new URL(location.href);
+      url.searchParams.set('menu', id);
+      history.replaceState(history.state, '', url);
+    }
+  };
+  tabs.forEach((t) => t.addEventListener('click', () => show(t.dataset.menuTab!, true)));
+  const initial = new URLSearchParams(location.search).get('menu');
+  if (initial && tabs.some((t) => t.dataset.menuTab === initial)) show(initial);
+</script>

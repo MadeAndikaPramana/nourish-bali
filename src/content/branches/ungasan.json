@@ -1,0 +1,69 @@
+{
+  "slug": "ungasan",
+  "name": "Ungasan",
+  "mapsName": "NOURISH CAFE & PIZZERIA",
+  "tagline": "Wholefoods, bakery and pizza on Jl. Raya Uluwatu.",
+  "area": "Pecatu, Bukit",
+  "address": "Jl. Raya Uluwatu Pecatu No.250, Pecatu, Kec. Kuta Selatan, Kabupaten Badung, Bali 80361",
+  "whatsapp": "+62 877-5974-3987",
+  "maps": {
+    "query": "NOURISH CAFE & PIZZERIA, Jl. Raya Uluwatu Pecatu No.250, Pecatu, Kuta Selatan, Badung, Bali 80361"
+  },
+  "rating": {
+    "value": 4.5,
+    "count": 3769,
+    "checked": "2026-10-02"
+  },
+  "hours": {
+    "mon": [
+      {
+        "open": "07:00",
+        "close": "22:30"
+      }
+    ],
+    "tue": [
+      {
+        "open": "07:00",
+        "close": "22:30"
+      }
+    ],
+    "wed": [
+      {
+        "open": "07:00",
+        "close": "22:30"
+      }
+    ],
+    "thu": [
+      {
+        "open": "07:00",
+        "close": "22:30"
+      }
+    ],
+    "fri": [
+      {
+        "open": "07:00",
+        "close": "22:30"
+      }
+    ],
+    "sat": [
+      {
+        "open": "07:00",
+        "close": "22:30"
+      }
+    ],
+    "sun": [
+      {
+        "open": "07:00",
+        "close": "22:30"
+      }
+    ]
+  },
+  "hoursConfirmed": false,
+  "specialDays": [],
+  "temporarilyClosed": {
+    "active": false,
+    "message": ""
+  },
+  "menu": "bukit",
+  "order": 2
+}

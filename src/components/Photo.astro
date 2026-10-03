@@ -1,0 +1,50 @@
+---
+import { Image } from 'astro:assets';
+import { photos, type PhotoKey } from '@/lib/photos';
+
+interface Props {
+  photo: PhotoKey;
+  class?: string;
+  imgClass?: string;
+  widths?: number[];
+  sizes: string;
+  loading?: 'eager' | 'lazy';
+  /** view-transition-name for cross-page morphs */
+  transitionName?: string;
+  tag?: boolean;
+  /** Where the "Placeholder photo" label sits; use top when text overlays the bottom. */
+  tagPosition?: 'top' | 'bottom';
+}
+
+const {
+  photo,
+  class: className = '',
+  imgClass = '',
+  widths = [480, 800, 1200, 1600],
+  sizes,
+  loading = 'lazy',
+  transitionName,
+  tag = true,
+  tagPosition = 'bottom',
+} = Astro.props;
+const p = photos[photo];
+// Callers that position the figure themselves (absolute/fixed) must not also get `relative`.
+const positioned = /\b(absolute|fixed|sticky)\b/.test(className);
+---
+
+<figure class:list={[!positioned && 'relative', 'overflow-hidden', className]} style={transitionName ? `view-transition-name:${transitionName}` : undefined}>
+  <Image
+    src={p.src}
+    alt={`Placeholder photo: ${p.alt}`}
+    widths={widths}
+    sizes={sizes}
+    loading={loading}
+    fetchpriority={loading === 'eager' ? 'high' : 'auto'}
+    format="webp"
+    quality={70}
+    class:list={['h-full w-full object-cover', imgClass]}
+    style={'position' in p && p.position ? `object-position:${p.position}` : undefined}
+  />
+  {tag && <span class:list={['placeholder-tag', tagPosition === 'top' && '!bottom-auto top-3 left-3']}>Placeholder photo</span>}
+  <slot />
+</figure>

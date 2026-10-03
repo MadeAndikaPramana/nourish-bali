@@ -1,0 +1,27 @@
+---
+import type { Branch } from '@/lib/schema';
+import Icon from '@/components/Icon.astro';
+import { directionsUrl, helloMessage, waLink } from '@/lib/links';
+
+/** Thumb-reach actions on phones: WhatsApp · Directions · Menu. */
+interface Props {
+  branch: Branch;
+}
+const { branch } = Astro.props;
+---
+
+<nav
+  aria-label={`${branch.name} quick actions`}
+  class="fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-40 grid grid-cols-3 gap-1.5 rounded-full bg-ink/90 p-1.5 text-paper shadow-2xl shadow-ink/30 backdrop-blur-lg lg:hidden"
+  style="view-transition-name: mobile-dock"
+>
+  <a href={waLink(branch.whatsapp, helloMessage(branch.name))} target="_blank" rel="noopener" class="btn btn-wa !min-h-12 !px-2 text-sm">
+    <Icon name="whatsapp" size={17} /> WhatsApp
+  </a>
+  <a href={directionsUrl(branch.maps)} target="_blank" rel="noopener" class="btn !min-h-12 bg-paper !px-2 text-sm text-ink">
+    <Icon name="directions" size={15} /> Directions
+  </a>
+  <a href="#menu" class="btn !min-h-12 bg-paper/15 !px-2 text-sm text-paper">
+    <Icon name="utensils" size={15} /> Menu
+  </a>
+</nav>

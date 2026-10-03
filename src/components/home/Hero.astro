@@ -1,0 +1,65 @@
+---
+import Photo from '@/components/Photo.astro';
+import Icon from '@/components/Icon.astro';
+import FitWordmark from '@/components/FitWordmark.astro';
+import LiveStatus from '@/islands/LiveStatus';
+import BaliClock from '@/islands/BaliClock';
+import { getBranches } from '@/lib/content';
+import { weeklySummary } from '@/lib/hours';
+
+const branches = getBranches();
+---
+
+<section id="hero" class="relative" aria-labelledby="hero-title">
+  <div class="container-x pt-6 lg:pt-10">
+    <div class="eyebrow flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-muted">
+      <span>Healthy all-day cafés · Bali</span>
+      <span>Uluwatu · Ungasan · Berawa</span>
+    </div>
+    <h1 id="hero-title" class="mt-5 text-ink lg:mt-7">
+      <span class="sr-only">NOURISH, healthy all-day cafés in Bali</span>
+      <FitWordmark />
+    </h1>
+
+    <div class="relative mt-5 overflow-hidden rounded-[1.75rem] bg-sand lg:mt-8">
+      <Photo
+        photo="spacePlants"
+        class="aspect-[4/5] sm:aspect-[16/10] lg:aspect-[21/9]"
+        sizes="(min-width: 1440px) 1360px, 100vw"
+        widths={[480, 800, 1200, 1600]}
+        loading="eager"
+        tagPosition="top"
+      />
+      <div class="absolute inset-0 bg-gradient-to-t from-ink/75 via-ink/15 to-transparent" aria-hidden="true"></div>
+      <div class="absolute inset-x-0 bottom-0 flex flex-col gap-5 p-5 text-paper sm:p-8 lg:flex-row lg:items-end lg:justify-between lg:p-10">
+        <p class="serif max-w-xl text-[clamp(2rem,5.2vw,4.25rem)]">A place to start, stay and slow down.</p>
+        <div class="flex flex-wrap gap-2.5">
+          <a href="#cafes" class="btn bg-paper text-ink hover:bg-white">Find your café <Icon name="arrow-right" size={16} /></a>
+          <a href="/menu" class="btn bg-paper/15 text-paper backdrop-blur hover:bg-paper/25">See the menu</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live status, as its own bar under the photo -->
+    <div class="mt-3 grid overflow-hidden rounded-[1.25rem] bg-ink text-paper sm:grid-cols-3" aria-label="Open now">
+      {
+        branches.map((b, i) => (
+          <a
+            href={`/${b.slug}`}
+            data-branch={b.slug}
+            class:list={['group flex items-center justify-between gap-3 px-5 py-4 transition-colors hover:bg-paper/5', i > 0 && 'border-t border-paper/10 sm:border-l sm:border-t-0']}
+          >
+            <span class="min-w-0">
+              <span class="signage block text-[0.95rem]">{b.name}</span>
+              <span class="mt-1.5 block text-sm text-paper/80">
+                <LiveStatus client:load branch={b} variant="inline" fallback={weeklySummary(b.hours)[0].hours} />
+              </span>
+            </span>
+            <Icon name="arrow-right" size={16} class="shrink-0 opacity-50 transition-transform group-hover:translate-x-0.5 group-hover:opacity-100" />
+          </a>
+        ))
+      }
+    </div>
+    <p class="mt-2 text-right text-xs text-muted">Bali time <BaliClock client:idle className="font-semibold" /></p>
+  </div>
+</section>

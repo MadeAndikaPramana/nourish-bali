@@ -1,0 +1,11 @@
+---
+/** Typed brand name in the display face (not the café's logo file). */
+interface Props {
+  class?: string;
+}
+const { class: className = '' } = Astro.props;
+---
+
+<span class:list={['display inline-flex items-baseline leading-none', className]} aria-label="NOURISH">
+  <span aria-hidden="true">Nourish</span><span aria-hidden="true" class="text-accent">.</span>
+</span>

@@ -1,0 +1,64 @@
+---
+import Icon from '@/components/Icon.astro';
+import { getBranches, totalReviews } from '@/lib/content';
+import { formatCount } from '@/lib/format';
+
+/** Public Google numbers only. No quoted reviews (those need the reviewer's and owner's OK). */
+const branches = getBranches();
+const total = totalReviews();
+const checked = new Date(`${branches[0].rating.checked}T00:00:00Z`).toLocaleDateString('en-GB', {
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+  timeZone: 'UTC',
+});
+---
+
+<section id="reviews" class="container-x scroll-mt-24 py-20 lg:py-24" aria-labelledby="reviews-title">
+  <div class="grid gap-10 border-y border-line py-12 lg:grid-cols-[1fr_1.4fr] lg:items-center">
+    <h2 id="reviews-title">
+      <span class="eyebrow block text-accent">On Google Maps</span>
+      <span class="signage mt-5 block text-[clamp(3rem,9vw,6rem)] tabular-nums" data-count={total}>{formatCount(total)}</span>
+      <span class="serif mt-3 block text-[clamp(1.6rem,3vw,2.2rem)] text-ink/80">reviews across three cafés</span>
+    </h2>
+    <div>
+      <ul class="grid gap-3 sm:grid-cols-3">
+        {
+          branches.map((b) => (
+            <li data-branch={b.slug} class="rounded-[1.25rem] bg-cream p-5 ring-1 ring-line">
+              <p class="signage text-sm">{b.name}</p>
+              <p class="mt-4 flex items-center gap-1.5 text-3xl font-bold">
+                {b.rating.value.toFixed(1)}
+                <Icon name="star" size={20} class="text-amber-500" />
+              </p>
+              <p class="mt-1 text-sm text-muted">{formatCount(b.rating.count)} reviews</p>
+            </li>
+          ))
+        }
+      </ul>
+      <p class="mt-4 text-xs text-muted">Public rating and review counts from each Google Maps listing, checked {checked}.</p>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Count the review total up when it scrolls into view.
+  const el = document.querySelector<HTMLElement>('[data-count]');
+  if (el && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const target = Number(el.dataset.count);
+    new IntersectionObserver(
+      ([e], io) => {
+        if (!e.isIntersecting) return;
+        io.disconnect();
+        const start = performance.now();
+        const step = (t: number) => {
+          const k = Math.min(1, (t - start) / 1400);
+          el.textContent = Math.round(target * (1 - Math.pow(1 - k, 4))).toLocaleString('en-US');
+          if (k < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      },
+      { threshold: 0.6 },
+    ).observe(el);
+  }
+</script>

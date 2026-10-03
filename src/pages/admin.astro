@@ -1,0 +1,8 @@
+---
+import Base from '@/layouts/Base.astro';
+import AdminApp from '@/admin/AdminApp';
+---
+
+<Base title="Admin" description="Staff admin for NOURISH Bali." bare noindex>
+  <AdminApp client:only="react" />
+</Base>

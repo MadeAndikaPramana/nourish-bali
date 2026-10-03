@@ -1,0 +1,111 @@
+---
+import Photo from '@/components/Photo.astro';
+import Icon from '@/components/Icon.astro';
+import LiveStatus from '@/islands/LiveStatus';
+import { getBranches } from '@/lib/content';
+import { weeklySummary } from '@/lib/hours';
+import { branchPhoto, branchSpace } from '@/lib/photos';
+import { directionsUrl, helloMessage, waLink } from '@/lib/links';
+import { formatCount } from '@/lib/format';
+
+/** What sets each café apart. Facts from the menus, Google reviews and public guides (see README "to confirm"). */
+const highlights: Record<string, string[]> = {
+  uluwatu: ['Wholefoods store', 'All-day breakfast', 'Bakery'],
+  ungasan: ['Healthy brunch', 'Gourmet pizzas', 'Wholefoods store'],
+  berawa: ['Ricefield views', 'Brunch to go', 'Cold-pressed juice'],
+};
+const branches = getBranches();
+---
+
+<section id="cafes" class="scroll-mt-24 bg-cream py-20 lg:py-28" aria-labelledby="cafes-title">
+  <div class="container-x">
+    <div class="mb-12 grid gap-4 lg:mb-16 lg:grid-cols-2 lg:items-end">
+      <div>
+        <p class="eyebrow text-accent">Three cafés, three moods</p>
+        <h2 id="cafes-title" class="serif mt-5 text-[clamp(2.4rem,6vw,5rem)]">Pick your Nourish</h2>
+      </div>
+      <p class="max-w-md text-muted lg:justify-self-end">
+        Two on the Bukit near Uluwatu, one among the ricefields of Berawa, Canggu. Uluwatu and Ungasan share a menu; Berawa
+        has its own.
+      </p>
+    </div>
+
+    <div class="grid gap-16 lg:gap-24">
+      {
+        branches.map((b, i) => {
+          const [space] = branchSpace[b.slug];
+          return (
+            <article data-branch={b.slug} class="grid items-center gap-8 lg:grid-cols-12 lg:gap-12">
+              <div class:list={['relative lg:col-span-7', i % 2 === 1 && 'lg:order-2']}>
+                <Photo
+                  photo={branchPhoto[b.slug]}
+                  class="aspect-[4/3] rounded-[1.75rem]"
+                  sizes="(min-width: 1024px) 56vw, 100vw"
+                  widths={[480, 800, 1200]}
+                  transitionName={`branch-photo-${b.slug}`}
+                  tagPosition="top"
+                />
+                <Photo
+                  photo={space}
+                  class:list={[
+                    'absolute -bottom-6 hidden aspect-square w-[32%] rounded-[1.25rem] ring-8 ring-cream sm:block',
+                    i % 2 === 1 ? '-left-4 lg:-left-8' : '-right-4 lg:-right-8',
+                  ]}
+                  sizes="20vw"
+                  widths={[300, 500]}
+                  tag={false}
+                />
+              </div>
+
+              <div class:list={['lg:col-span-5', i % 2 === 1 && 'lg:order-1']}>
+                <p class="eyebrow text-accent">{b.area}</p>
+                <h3 class="signage mt-4 text-[clamp(2.2rem,5vw,3.6rem)]" style={`view-transition-name: branch-title-${b.slug}`}>
+                  {b.name}
+                </h3>
+                <p class="serif mt-4 text-[clamp(1.5rem,2.6vw,2rem)] text-ink/80">{b.tagline}</p>
+                <ul class="mt-6 flex flex-wrap gap-2">
+                  {highlights[b.slug].map((h) => (
+                    <li class="rounded-full bg-accent-soft px-3 py-1.5 text-sm font-semibold text-accent">{h}</li>
+                  ))}
+                </ul>
+                <dl class="mt-7 grid gap-3 border-t border-line pt-6 text-sm">
+                  <div class="flex items-center justify-between gap-4">
+                    <dt class="text-muted">Right now</dt>
+                    <dd>
+                      <LiveStatus client:visible branch={b} variant="inline" fallback={weeklySummary(b.hours)[0].hours} />
+                    </dd>
+                  </div>
+                  <div class="flex items-center justify-between gap-4">
+                    <dt class="text-muted">Hours</dt>
+                    <dd class="text-right">
+                      {weeklySummary(b.hours)
+                        .map((r) => `${r.days} ${r.hours}`)
+                        .join(' · ')}
+                    </dd>
+                  </div>
+                  <div class="flex items-center justify-between gap-4">
+                    <dt class="text-muted">Google</dt>
+                    <dd class="flex items-center gap-1">
+                      <Icon name="star" size={14} class="text-amber-500" /> {b.rating.value.toFixed(1)} · {formatCount(b.rating.count)} reviews
+                    </dd>
+                  </div>
+                </dl>
+                <div class="mt-7 flex flex-wrap gap-2">
+                  <a href={`/${b.slug}`} class="btn btn-ink">
+                    Visit {b.name} <Icon name="arrow-right" size={15} />
+                  </a>
+                  <a href={waLink(b.whatsapp, helloMessage(b.name))} target="_blank" rel="noopener" class="btn btn-wa">
+                    <Icon name="whatsapp" size={16} /> WhatsApp
+                  </a>
+                  <a href={directionsUrl(b.maps)} target="_blank" rel="noopener" class="btn btn-ghost">
+                    <Icon name="directions" size={15} /> Directions
+                  </a>
+                </div>
+              </div>
+            </article>
+          );
+        })
+      }
+    </div>
+  </div>
+</section>
