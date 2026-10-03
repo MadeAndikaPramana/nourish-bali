@@ -1,7 +1,7 @@
 ---
 import Base from '@/layouts/Base.astro';
 import Hero from '@/components/home/Hero.astro';
-import BrandBand from '@/components/home/BrandBand.astro';
+import CurvedMarquee from '@/components/home/CurvedMarquee.astro';
 import Intro from '@/components/home/Intro.astro';
 import BranchStories from '@/components/home/BranchStories.astro';
 import DayAtNourish from '@/components/home/DayAtNourish.astro';
@@ -15,6 +15,7 @@ import { getBranches, getSite } from '@/lib/content';
 import { branchJsonLd } from '@/lib/seo';
 
 const site = getSite();
+const words = ['Smoothie bowls', 'Açaí', 'Poke', 'Shakshouka', 'Falafel wrap', 'Bagels', 'French toast', 'Carrot cake', 'Pizza', 'Flat white'];
 ---
 
 <Base
@@ -24,7 +25,7 @@ const site = getSite();
 >
   <Hero />
   <Intro />
-  <BrandBand />
+  <CurvedMarquee words={words} />
   <BranchStories />
   <DayAtNourish />
   <TakeHome />
